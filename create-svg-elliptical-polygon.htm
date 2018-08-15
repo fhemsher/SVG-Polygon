@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <title>C03 - Create Elliptical Polygons</title>
+  <script type="text/javascript" src="highlight.pack.js"></script>
+  <script type="text/javascript" src="highlightCode.js"></script>
+  <link href='highlight.css' rel='stylesheet' />
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+</head>
+<body style='padding:0px;font-family:arial;background:#f0f8ff'>
+<center>
+<h4>Create Elliptical Polygons</h4>
+<div style='width:90%;background-color:gainsboro;text-align:justify;padding:10px;border-radius:6px;'>
+Build a regular polygon. Scale in either x or y direction, then re-compute its transformed points. Uses <b>scaleNonUniform</b>
+</div>
+<div id=svgDiv style='width:300px;height:300px;;background-color:lightgreen'>
+<svg id="mySVG" width="300" height="300">
+<polygon id="myPolygon" stroke="blue" stroke-width="1" fill="yellow" />
+</svg>
+</div>
+Sides:<input id=sideValue size=1 value=20 />
+Radius:<input id=radiusValue size=1  value=100 />
+Scale X:<input type=text id=scaleXValue size=1 value=1.0 />
+Scale Y:<input type=text  id=scaleYValue size=1   value=0.5 />
+<button onClick=buildEllepticalPolygon(150,150)>go</button>
+ <br>
+  SVG Source:
+  <div id=svgSourceDiv style=overflow:auto;width:100%;height:1px;text-align:left; /></div>
+  Javascript:
+  <div id=jsCodeDiv style=overflow:auto;width:100%;text-align:left; /></div>
+</center>
+<script id=myScript>
+document.addEventListener("onload",init(),false)
+var mySVG
+var myPolygon
+function init()
+{
+	mySVG=document.getElementById("mySVG")
+	myPolygon=document.getElementById("myPolygon")
+	buildEllepticalPolygon(150,150)
+    //---buildEllepticalPolygon(centerX,centerY)---
+
+    showSourceJS()
+}
+//----create regular polygon based on a radius length:circumradius (radius of a circle passing through all points)--
+function buildEllepticalPolygon(centerX,centerY)
+{
+	var myPoints=myPolygon.points
+	myPoints.clear()
+
+	var vCnt=parseInt(sideValue.value)
+	var radius=parseFloat(radiusValue.value)
+
+	var polyXPts      = Array(vCnt);
+	var polyYPts      = Array(vCnt);
+	var vertexAngle   = 360/vCnt;
+	//---init polygon points processor---
+	for(var v=0; v<vCnt; v++)
+	{
+		theAngle = (v*vertexAngle)*Math.PI/180;
+		polyXPts[v] = radius*Math.cos(theAngle);
+		polyYPts[v] = -radius*Math.sin(theAngle);
+	}
+	//--note points are CCW(this is important for future ref)---
+	for(var v=0;v<vCnt; v++)
+	{
+		var point=mySVG.createSVGPoint();
+		point.x=centerX+polyXPts[v]
+		point.y=centerY+polyYPts[v]
+		myPoints.appendItem(point)
+	}
+
+	//---center at 0,0---
+	myPolygon.setAttribute("transform","translate("+(-centerX)+" "+(-centerY)+")")
+	computePolyPoints(mySVG,myPolygon)
+	var scaleX=parseFloat(scaleXValue.value)
+	var scaleY=parseFloat(scaleYValue.value)
+	//--non uniform scale---
+	var CTM=myPolygon.getCTM()
+	var scaledCTM=CTM.scaleNonUniform(scaleX,scaleY)
+	var transObjAnim=myPolygon.transform
+	var transObj=transObjAnim.baseVal
+	var myMatrixTransform = mySVG.createSVGTransformFromMatrix(scaledCTM)
+	transObj.appendItem(myMatrixTransform)
+	computePolyPoints(mySVG,myPolygon)
+	//---return---
+	myPolygon.setAttribute("transform","translate("+centerX+" "+centerY+")")
+	computePolyPoints(mySVG,myPolygon)
+
+	showSourceSVG()
+
+}
+//---changes all transformed points to screen points---
+function computePolyPoints(mySVG,myPoly)
+{
+	var sCTM = myPoly.getCTM()
+	var pointsList = myPoly.points;
+	var n = pointsList.numberOfItems;
+	for(var m=0;m<n;m++)
+	{
+		var mySVGPoint = mySVG.createSVGPoint();
+		mySVGPoint.x = pointsList.getItem(m).x
+		mySVGPoint.y = pointsList.getItem(m).y
+		mySVGPointTrans = mySVGPoint.matrixTransform(sCTM)
+		pointsList.getItem(m).x=mySVGPointTrans.x
+		pointsList.getItem(m).y=mySVGPointTrans.y
+	}
+	//---force removal of transform--
+	myPoly.setAttribute("transform","")
+	myPoly.removeAttribute("transform")
+}
+
+</script>
+
+</body>
+
+</html>

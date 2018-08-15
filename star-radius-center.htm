@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <title>Create A Star Polygon</title>
+  <script type="text/javascript" src="highlight.pack.js"></script>
+  <script type="text/javascript" src="highlightCode.js"></script>
+  <link href='highlight.css' rel='stylesheet' />
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+</head>
+<body style='padding:0px;font-family:arial;background:#f0f8ff'>
+<center>
+<h4>Create A Star Polygon</h4>
+<div style='width:90%;background-color:gainsboro;text-align:justify;padding:10px;border-radius:6px;'>
+Provide a <b>radius</b>, its  <b>center point</b>, and number of <b>star points</b>.
+</div>
+Points:<input type=text id=starPointValue value=4 size=1 />
+&nbsp; Radius:<input type=text id=radiusValue value=50 size=1  />
+&nbsp; Center: <input type=text id=cxValue value=150 size=1  />x &nbsp; <input type=text id=cyValue value=150 size=1  />y
+&nbsp; <button onClick=buildStarPoly()>go</button>
+<div id=svgDiv style='background-color:lightgreen;width:300px;height:300px;'>
+<svg id="mySVG" width="300" height="300">
+<polygon id="myPolygon" stroke="blue" stroke-width="3" fill="yellow" />
+</svg>
+</div>
+  SVG Source:
+  <div id=svgSourceDiv style=overflow:auto;width:100%;height:1px;text-align:left; /></div>
+  Javascript:
+  <div id=jsCodeDiv style=overflow:auto;width:100%;text-align:left; /></div>
+</center>
+<script id=myScript >
+document.addEventListener("onload",init(),false)
+
+function init()
+{
+
+    buildStarPoly()
+    showSourceJS()
+}
+function buildStarPoly(centerX,centerY)
+{
+	var myPoints=myPolygon.points
+	myPoints.clear()
+    var centerX=+cxValue.value
+    var centerY=+cyValue.value
+	var starPoints=parseInt(starPointValue.value)
+	var theta=Math.PI*2/starPoints;
+	var r=parseFloat(radiusValue.value)
+	//---ccw points---
+	for(i=0;i<starPoints;i++)
+	{
+		var k=i+1;
+		var sineAngle=Math.sin(theta*k);
+		var cosineAngle=Math.cos(theta*k);
+		var x1=r/2*sineAngle+centerX;
+		var y1=r/2*cosineAngle+centerY;
+		//----add alpha line, end star pnts----
+		var sineAngleAlpha=Math.sin(theta*k+.5*theta);
+		var cosineAngleAlpha=Math.cos(theta*k+.5*theta);
+		var x2=r*sineAngleAlpha+centerX;
+		var y2=r*cosineAngleAlpha+centerY;
+
+		var point1=mySVG.createSVGPoint();
+		point1.x=x1
+		point1.y=y1
+		myPoints.appendItem(point1)
+		var point2=mySVG.createSVGPoint();
+		point2.x=x2
+		point2.y=y2
+		myPoints.appendItem(point2)
+	}
+
+    showSourceSVG()
+
+}
+
+</script>
+
+</body>
+
+</html>

@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <title>Create A Star-Angle Polygon</title>
+  <script type="text/javascript" src="highlight.pack.js"></script>
+  <script type="text/javascript" src="highlightCode.js"></script>
+  <link href='highlight.css' rel='stylesheet' />
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+</head>
+<body style='padding:0px;font-family:arial;background:#f0f8ff'>
+<center>
+<h4>Create A Star-Angle Polygon &amp; Edge Length</h4>
+<div style='width:90%;background-color:gainsboro;text-align:justify;padding:10px;border-radius:6px;'>
+Provide the star's <b>Edge</b> length, plus its <b>points @ angle</b> values.
+</div>
+
+<table>
+<tr><td>
+<div id='aboutStarDiv' title="click to close" style='border:1px solid black;text-align:justify;padding:10px;width:160px;background:white;'>
+<table>
+<tr><td colspan=2 align=center><b>Star Selections</b><br>(interior angles)</td></tr>
+<tr><td>3@30&deg;</td><td><img src="Images/star_3_150.png" alt="" /></td></tr>
+<tr><td>4@30&deg;</td><td><img src="Images/4_point_star.png" alt="" width=80 height=80 /></td></tr>
+<tr><td>4@45&deg;</td><td><img src="Images/star_4_135.png" alt="" /></td></tr>
+<tr><td>5@36&deg;</td><td><img src="Images/star_5_72.png" alt="" /></td></tr>
+<tr><td>5@72&deg;</td><td><img src="Images/star_5_140.png" alt="" /></td></tr>
+<tr><td>6@30&deg;</td><td><img src="Images/star_6_90.png" alt="" /></td></tr>
+<tr><td>6@60&deg;</td><td><img src="Images/star_6_120.png" alt="" /></td></tr>
+<tr><td>8@45&deg;</td><td><img src="Images/star_8_90.png" alt="" /></td></tr>
+</table>
+</div>
+</td>
+
+<td>
+<table>
+<tr style=background:rgb(190,190,190)><td colspan=2><nobr>
+
+
+
+        Edge:<select id="edgeSelect"  onchange=createStar()>
+        <option>20</option>
+        <option>40</option>
+        <option selected>60</option>
+        <option>80</option>
+        <option>100</option>
+        <option>120</option>
+        </select>px.
+
+
+        &nbsp; Star: <select id=starSelect onchange=createStar()>
+         <option>Points</option>
+         <option>3@30&deg;</option>
+         <option selected >4@30&deg;</option>
+         <option>4@45&deg;</option>
+         <option>5@36&deg;</option>
+         <option>5@72&deg;</option>
+         <option>6@30&deg;</option>
+         <option>6@60&deg;</option>
+         <option>8@45&deg;</option>
+         </select>
+        </td></tr>
+</table>
+<p></p>
+<div id=svgDiv style='background-color:lightgreen;width:300px;height:300px;'>
+<svg id="mySVG" width="300" height="300">
+<polygon id="myPolygon" stroke="blue"  stroke-width="3" fill="yellow" />
+<circle id=locPoint cx=150 cy=150 r=5 fill="red" />
+
+</svg>
+</div>
+</td></tr>
+</table>
+
+
+  SVG Source:
+  <div id=svgSourceDiv style=overflow:auto;width:100%;height:1px;text-align:left; /></div>
+  Javascript:
+  <div id=jsCodeDiv style=overflow:auto;width:100%;text-align:left; /></div>
+</center>
+<script id=myScript >
+
+
+
+function createStar()
+{
+    if(starSelect.selectedIndex>0)
+    {
+        var prevX
+        var prevY
+        var points=[]
+        var length=+edgeSelect.options[edgeSelect.selectedIndex].value
+        var angles=StarAngleArray[starSelect.selectedIndex]
+        for(var k=0;k<angles.length;k++)
+        {
+            var angle=angles[k]
+            if(k==0)
+            {
+                prevX=0
+                prevY=0
+                points.push([prevX,prevY])
+            }
+            else
+            {
+                prevX=points[k][0]
+                prevY=points[k][1]
+            }
+            nextX=prevX+length*Math.cos((angle-90)*Math.PI/180)
+            nextY=prevY+length*Math.sin((angle-90)*Math.PI/180)
+
+
+            points.push([nextX,nextY])
+        }
+
+
+        myPolygon.setAttribute("points",points.toString())
+        centerStar()
+
+      showSourceSVG()
+    }
+}
+
+function centerStar()
+{
+
+  var bb=myPolygon.getBBox()
+  var bbx=bb.x
+  var bby=bb.y
+  var bbw=bb.width
+  var bbh=bb.height
+  var cx=bbx+.5*bbw
+  var cy=bby+.5*bby
+   var transX=150-cx
+   var transY=150-cy -.5*bbh
+   myPolygon.setAttribute("transform","translate("+transX+" "+transY+")")
+
+}
+
+
+var StarAngleArray=[]
+StarAngleArray[0]=[1,2,3]   //---not used---
+StarAngleArray[1]=[165,135,285,255,45] //---3@30 deg---
+
+
+StarAngleArray[2]=[195,255,105,165,15,75,285] //---4@30 deg---
+StarAngleArray[3]=[157.5,112.5,247,202.5,337.5,292.5,68] //---4@45 deg---
+StarAngleArray[4]=[162,90,234,162,306,234,18,306,90] //---5@36 deg---
+StarAngleArray[5]=[144,108,216,180,288,252,360,324,72] //---5@72 deg---
+
+StarAngleArray[6]=[165,75,225,135,285,195,345,255,45,315,105] //---6@30 deg---
+StarAngleArray[7]=[150,90,210,150,270,210,330,270,30,330,90] //---6@60 deg---
+StarAngleArray[8]=[157.5,67,202,112,247,157,292,202,337,247,22,292,67,337,112] //---8@45 deg---
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+document.addEventListener("onload",init(),false)
+
+
+
+
+
+
+
+function init()
+{
+
+    createStar()
+    showSourceJS()
+}
+
+</script>
+
+</body>
+
+</html>

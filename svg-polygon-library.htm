@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <title>C05 - Polygon Symbol Library</title>
+  <script type="text/javascript" src="highlight.pack.js"></script>
+  <script type="text/javascript" src="highlightCode.js"></script>
+  <link href='highlight.css' rel='stylesheet' />
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+</head>
+<body style='padding:0px;font-family:arial;background:#f0f8ff'>
+<center>
+<h4>Polygon Symbol Library</h4>
+<b>The Native Symbol Library is usable for many applications</b>
+<div style='width:90%;background-color:gainsboro;text-align:justify;padding:10px;border-radius:10px;'>
+The 'native' library consists of an svg file for each symbol. Currently there are 40 symbols made up of 1, 2, or 3 polygons. Each symbol has a size=1, centered at(0,0) and fill colors black and white.
+The 'registered' library for an application clones various symbols from the native library, giving them size and color(s). Each parent symbol is also an svg file, stored in the application.
+When this example application requires a multi-use symbol, it will extract it from parent to a 'SymbolDefs' element in the root SVG element for the application. Therfore the app will clone needed symbols from the defs element.
+The example uses the <b>XMLHTTP</b> control to access the <b>native symbol library</b>. (The application could then employ <b>Active Server Pages(ASP)</b> to send the application's <b>registered symbols</b>  and its <b>planted symbols</b> to the server.)
+</div>
+
+<br />Native Symbol Library: size=1 center=(0,0) - Files at server<br />
+<textarea id=nativeLibraryValue style='font-size:120%;font-family:lucida console;width:90%;height:200px'></textarea>
+<div id=nativeLibraryDiv style='width:90%;heightL40px;overflow:auto'>
+<table id=nativeLibraryTable>
+<td><div title="Register Me" onClick=selectNative("Star4") id=Star4Div style='width:30px;height:30px;overflow:hidden'></div> </td>
+<td><div title="Register Me" onClick=selectNative("Star5")  id=Star5Div style='width:30px;height:30px;overflow:hidden'></div> </td>
+<td><div title="Register Me" onClick=selectNative("Star6") id=Star6Div style='width:30px;height:30px;overflow:hidden'></div> </td>
+<td><div title="Register Me" onClick=selectNative("Star10") id=Star10Div style='width:30px;height:30px;overflow:hidden'></div> </td>
+<td><div title="Register Me" onClick=selectNative("Star15") id=Star15Div style='width:30px;height:30px;overflow:hidden'></div> </td>
+<td><div title="Register Me" onClick=selectNative("Pgon3u") id=Pgon3uDiv style='width:30px;height:30px;overflow:hidden'></div> </td>
+<td><div title="Register Me" onClick=selectNative("Pgon3d") id=Pgon3dDiv style='width:30px;height:30px;overflow:hidden'></div> </td>
+<td><div title="Register Me" onClick=selectNative("Pgon3r") id=Pgon3rDiv style='width:30px;height:30px;overflow:hidden'></div> </td>
+<td><div title="Register Me" onClick=selectNative("Pgon3l") id=Pgon3lDiv style='width:30px;height:30px;overflow:hidden'></div> </td>
+<td><div title="Register Me" onClick=selectNative("Pgon4d") id=Pgon4dDiv style='width:30px;height:30px;overflow:hidden'></div> </td>
+<td><div title="Register Me" onClick=selectNative("Pgon4") id=Pgon4Div style='width:30px;height:30px;overflow:hidden'></div> </td>
+<td><div title="Register Me" onClick=selectNative("Pgon6") id=Pgon6Div style='width:30px;height:30px;overflow:hidden'></div> </td>
+<td><div title="Register Me" onClick=selectNative("Circle") id=CircleDiv style='width:30px;height:30px;overflow:hidden'></div> </td>
+<td><div title="Register Me" onClick=selectNative("EllipseHoriz") id=EllipseHorizDiv style='width:30px;height:30px;overflow:hidden'></div> </td>
+<td><div title="Register Me" onClick=selectNative("EllipseVert") id=EllipseVertDiv style='width:30px;height:30px;overflow:hidden'></div> </td>
+<td><div title="Register Me" onClick=selectNative("RhombHoriz") id=RhombHorizDiv style='width:30px;height:30px;overflow:hidden'></div> </td>
+<td><div title="Register Me" onClick=selectNative("RhombVert") id=RhombVertDiv style='width:30px;height:30px;overflow:hidden'></div> </td>
+<td><div title="Register Me" onClick=selectNative("CircleStar6") id=CircleStar6Div style='width:30px;height:30px;overflow:hidden'></div> </td>
+<td><div title="Register Me" onClick=selectNative("Pgon4vStar6") id=Pgon4vStar6Div style='width:30px;height:30px;overflow:hidden'></div> </td>
+<td><div title="Register Me" onClick=selectNative("Pgon4Star6") id=Pgon4Star6Div style='width:30px;height:30px;overflow:hidden'></div> </td>
+<td><div title="Register Me" onClick=selectNative("Pgon4vRhombHoriz") id=Pgon4vRhombHorizDiv style='width:30px;height:30px;overflow:hidden'></div> </td>
+<td><div title="Register Me" onClick=selectNative("Pgon4vRhombVert") id=Pgon4vRhombVertDiv style='width:30px;height:30px;overflow:hidden'></div> </td>
+<td><div title="Register Me" onClick=selectNative("CircleRhombHoriz") id=CircleRhombHorizDiv style='width:30px;height:30px;overflow:hidden'></div> </td>
+<td><div title="Register Me" onClick=selectNative("CircleRhombVert") id=CircleRhombVertDiv style='width:30px;height:30px;overflow:hidden'></div> </td>
+<td><div title="Register Me" onClick=selectNative("CirclePgon3r") id=CirclePgon3rDiv style='width:30px;height:30px;overflow:hidden'></div> </td>
+<td><div title="Register Me" onClick=selectNative("CirclePgon3t") id=CirclePgon3tDiv style='width:30px;height:30px;overflow:hidden'></div> </td>
+<td><div title="Register Me" onClick=selectNative("CirclePgon3l") id=CirclePgon3lDiv style='width:30px;height:30px;overflow:hidden'></div> </td>
+<td><div title="Register Me" onClick=selectNative("CirclePgon3b") id=CirclePgon3bDiv style='width:30px;height:30px;overflow:hidden'></div> </td>
+<td><div title="Register Me" onClick=selectNative("CirclePgon4d") id=CirclePgon4dDiv style='width:30px;height:30px;overflow:hidden'></div> </td>
+<td><div title="Register Me" onClick=selectNative("Pgon4dCircle") id=Pgon4dCircleDiv style='width:30px;height:30px;overflow:hidden'></div> </td>
+<td><div title="Register Me" onClick=selectNative("CircleEllipseVert") id=CircleEllipseVertDiv style='width:30px;height:30px;overflow:hidden'></div> </td>
+<td><div title="Register Me" onClick=selectNative("CircleEllipseHoriz") id=CircleEllipseHorizDiv style='width:30px;height:30px;overflow:hidden'></div> </td>
+<td><div title="Register Me" onClick=selectNative("CirclePgon4") id=Pgon4CircleDiv style='width:30px;height:30px;overflow:hidden'></div> </td>
+<td><div title="Register Me" onClick=selectNative("CirclePgon4") id=CirclePgon4Div style='width:30px;height:30px;overflow:hidden'></div> </td>
+<td><div title="Register Me" onClick=selectNative("Pgon6Circle") id=Pgon6CircleDiv style='width:30px;height:30px;overflow:hidden'></div> </td>
+<td><div title="Register Me" onClick=selectNative("Pgon4CircleStar5") id=Pgon4CircleStar5Div style='width:30px;height:30px;overflow:hidden'></div> </td>
+<td><div title="Register Me" onClick=selectNative("CirclePgon4vStar6") id=CirclePgon4vStar6Div style='width:30px;height:30px;overflow:hidden'></div> </td>
+<td><div title="Register Me" onClick=selectNative("Star6Circle") id=Star6CircleDiv style='width:30px;height:30px;overflow:hidden'></div> </td>
+<td><div title="Register Me" onClick=selectNative("Pgon6Star6") id=Pgon6Star6Div style='width:30px;height:30px;overflow:hidden'></div> </td>
+<td><div title="Register Me" onClick=selectNative("Pgon8Star4") id=Pgon8Star4Div style='width:30px;height:30px;overflow:hidden'></div> </td>
+</table>
+</div>
+<br />Build App's Registered Library - Select symbol above. Provide Size and Color(s)<br />
+Size:<input type=text id=registerSizeValue value=30 size=1 />
+&nbsp;&nbsp;Color 1:<select onChange=symbolRegisterColor1Selected() disabled  title="symbol color #1"  id=symbolRegisterColor1Select>
+<option title='Black' value="black"  style='color:white;background-color:black'>01</option>
+<option title='White'  value="white"  style='background-color:white'>02</option>
+</select>
+<span id=symbolRegColor1Value style="background-color:black;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+&nbsp;
+&nbsp;Color 2:<select onChange=symbolRegisterColor2Selected() disabled  title="symbol color #2"  id=symbolRegisterColor2Select>
+<option title='Black'  value="black"  style='color:white;background-color:black'>01</option>
+<option title='White'  value="white" selected style='background-color:white'>02</option>
+</select>
+<span id=symbolRegColor2Value style="background-color:white;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+
+&nbsp;Color 3:<select onChange=symbolRegisterColor3Selected() disabled  title="symbol color #3"  id=symbolRegisterColor3Select>
+<option title='Black' selected  value="black"  style='color:white;background-color:black'>01</option>
+<option title='White'  value="white" style='background-color:white'>02</option>
+</select>
+<span id=symbolRegColor3Value style="background-color:black;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+&nbsp;<button disabled style='border-color:orange' id=registerSymbolButton onClick=registerSymbol()>register</button>  <br />
+<br />This App's Register Symbols - Send to Server<br />
+<textarea id=registeredSymbolsValue style='font-size:120%;font-family:lucida console;width:90%;height:200px'></textarea>
+<br />This App's Registered SymbolDefs<br />
+<textarea id=symbolDefsValue style='background-color:orange;font-size:120%;font-family:lucida console;width:90%;height:200px'></textarea>
+<br />This Application: Plant Polygon Symbols<br />
+<table><tr>
+<td align=center><span style='background-color:orange'>1.Select symbol</span><br /><span style='background-color:lightgreen'>2.Click to locate</span>
+<div id=plantSymbolDiv style='border:3px inset orange;width:44px;height:360px;background-color:orange;overflow:auto'>
+<table id=plantSymbolTable></table>
+</div></td>
+<td><div onclick="plantAppSymbol(event)" id=svgDiv style='overflow:hidden;border-radius:15px;border:2px solid;green;width:600px;height:400px;background-color:lightgreen'>
+<svg id=myAppSVG width="600" height="400">
+<defs id="SymbolDefs"></defs>
+<g id="AppSymbolG"></g>
+</svg>
+ </div>
+ </td>
+
+</tr></table>
+<br />This App's Current Planted Symbols (sent to server)<br />
+<textarea id=appPlantedValue style='background-color:lightgreen;font-size:120%;font-family:lucida console;width:90%;height:200px'></textarea>
+  <p></p>Javascript:
+  <div id=jsCodeDiv style=overflow:auto;width:100%;text-align:left; /></div>
+
+</center>
+<script id=myScript>
+document.addEventListener("onload",init(),false)
+
+function init()
+{
+	showNativeFiles()//-- and create an associated svg image for selection---
+	buildSymbolColorSelection()
+	//---show empty defs---
+	symbolDefsValue.value= new XMLSerializer().serializeToString(SymbolDefs)
+	showSourceJS()
+}
+
+var NativeIdSelect
+var NativeSymbolSelect
+function selectNative(myId)
+{
+	if(NativeIdSelect)
+	{
+		var myDiv=document.getElementById(NativeIdSelect+"Div")
+		myDiv.style.borderWidth=""
+		myDiv.style.borderStyle=""
+		myDiv.style.borderColor=""
+		symbolRegisterColor1Select.selectedIndex=1//--black---
+		symbolRegisterColor2Select.selectedIndex=0//--white---
+		symbolRegisterColor3Select.selectedIndex=1//--black---
+		symbolRegisterColor1Select.disabled=true
+		symbolRegisterColor2Select.disabled=true
+		symbolRegisterColor3Select.disabled=true
+		symbolRegColor1Value.style.backgroundColor="black"
+		symbolRegColor2Value.style.backgroundColor="white"
+		symbolRegColor3Value.style.backgroundColor="black"
+
+		var polys=NativeSymbolSelect.childNodes
+		polys.item(0).setAttribute("fill","black")
+		if(polys.length>1)
+			polys.item(1).setAttribute("fill","white")
+		if(polys.length>2)
+			polys.item(2).setAttribute("fill","black")
+	}
+
+	registerSymbolButton.disabled=false
+	NativeIdSelect=myId
+	NativeSymbolSelect=document.getElementById(NativeIdSelect)
+	var myDiv=document.getElementById(myId+"Div")
+	myDiv.style.borderWidth="3px"
+	myDiv.style.borderStyle="inset"
+	myDiv.style.borderColor="orange"
+
+	symbolRegisterColor1Select.disabled=false
+	var polys=NativeSymbolSelect.getElementsByTagName("polygon")
+	if(polys.length>1)
+		symbolRegisterColor2Select.disabled=false
+	if(polys.length>2)
+		symbolRegisterColor3Select.disabled=false
+
+}
+
+function symbolRegisterColor1Selected()
+{
+	var color1=symbolRegisterColor1Select.options[symbolRegisterColor1Select.selectedIndex].value
+	symbolRegColor1Value.style.backgroundColor=color1
+	NativeSymbolSelect.childNodes.item(0).setAttribute("fill",color1)
+}
+function symbolRegisterColor2Selected()
+{
+	var color2=symbolRegisterColor2Select.options[symbolRegisterColor2Select.selectedIndex].value
+	symbolRegColor2Value.style.backgroundColor=color2
+	NativeSymbolSelect.childNodes.item(1).setAttribute("fill",color2)
+}
+function symbolRegisterColor3Selected()
+{
+	var color3=symbolRegisterColor3Select.options[symbolRegisterColor3Select.selectedIndex].value
+	symbolRegColor3Value.style.backgroundColor=color3
+	NativeSymbolSelect.childNodes.item(2).setAttribute("fill",color3)
+}
+
+//---the native symbol Id + color(s) 2-digit number is used to create a unique Id---
+function registerSymbol()
+{
+	//--this is a <g> element with polygon(s)---
+	var clone=NativeSymbolSelect.cloneNode(true)
+	//---get colors and their numbers(for id)--
+	color1=symbolRegisterColor1Select.options[symbolRegisterColor1Select.selectedIndex].value
+	color1Num=symbolRegisterColor1Select.options[symbolRegisterColor1Select.selectedIndex].text
+	color2=symbolRegisterColor2Select.options[symbolRegisterColor2Select.selectedIndex].value
+	color2Num=symbolRegisterColor2Select.options[symbolRegisterColor2Select.selectedIndex].text
+	color3=symbolRegisterColor3Select.options[symbolRegisterColor3Select.selectedIndex].value
+	color3Num=symbolRegisterColor3Select.options[symbolRegisterColor3Select.selectedIndex].text
+	var id=NativeSymbolSelect.id+"_"
+	var polys=clone.getElementsByTagName("polygon")
+	polys.item(0).setAttribute("fill",color1)
+	id+=color1Num
+	if(polys.length>1)
+	{
+		polys.item(1).setAttribute("fill",color2)
+		id+=color2Num
+	}
+	if(polys.length>2)
+	{
+		polys.item(2).setAttribute("fill",color3)
+		id+=color3Num
+	}
+	clone.id=id //--color numbers appended---
+	//---size this symbol--
+	var registerSize=parseFloat(registerSizeValue.value)
+	//---note: the selected symbols have been sized=30 for convenient user selection---
+	var resize=registerSize/30
+	if(resize!=1)
+	{
+		for(var k=0;k<clone.childNodes.length;k++)
+		{
+			var pgon=clone.childNodes.item(k)
+			pgon.setAttribute("transform","scale("+resize+")")
+			computePolyPoints(myAppSVG,pgon)
+		}
+	}
+	clone.setAttribute("size",registerSize)
+	clone.removeAttribute("transform")
+	//---send registered symbol to server---
+	var registerSVG=document.createElementNS('http://www.w3.org/2000/svg',"svg")
+	registerSVG.appendChild(clone)
+	registeredSymbolsValue.value+= new XMLSerializer().serializeToString(registerSVG)
+
+	//--update defs---
+	SymbolDefs.appendChild(clone)
+	//---show defs---
+	symbolDefsValue.value= new XMLSerializer().serializeToString(SymbolDefs)
+
+	//----place in this example's user table selection for planting---
+	var plantSymbol=clone.cloneNode(true)
+	//---place this in a root svg, used as inline image for table---
+	var plantSVG=document.createElementNS('http://www.w3.org/2000/svg',"svg")
+	plantSVG.appendChild(plantSymbol)
+
+	//---size this for convenient user selection: size=30---
+	var mySize=parseFloat(plantSymbol.getAttribute("size"))
+	if(mySize!=30)
+	{
+		var resize=30/mySize
+		for(var k=0;k<plantSymbol.childNodes.length;k++)
+		{
+			var pgon=plantSymbol.childNodes.item(k)
+			pgon.setAttribute("transform","scale("+resize+")")
+			computePolyPoints(plantSVG,pgon)
+		}
+	}
+
+	var defId=plantSymbol.id
+	plantSymbol.id=defId+"Plant"
+	plantSymbol.setAttribute("transform","translate(15 15)")
+	var  plantSymbolString=new XMLSerializer().serializeToString(plantSVG)
+	var tr = plantSymbolTable.insertRow(plantSymbolTable.rows.length);
+	var td = tr.insertCell(tr.cells.length);
+	td.innerHTML ="<div title='Plant Me' onClick=plantThisSymbol('"+defId+"') id="+defId+"Div style='width:30px;height:30px;overflow:hidden'>"+plantSymbolString+"</div>"
+
+	if(NativeIdSelect)
+	{
+		var myDiv=document.getElementById(NativeIdSelect+"Div")
+		myDiv.style.borderWidth=""
+		myDiv.style.borderStyle=""
+		myDiv.style.borderColor=""
+		symbolRegisterColor1Select.selectedIndex=1
+		symbolRegisterColor2Select.selectedIndex=0
+		symbolRegisterColor3Select.selectedIndex=1
+		symbolRegisterColor1Select.disabled=true
+		symbolRegisterColor2Select.disabled=true
+		symbolRegisterColor3Select.disabled=true
+		symbolRegColor1Value.style.backgroundColor="black"
+		symbolRegColor2Value.style.backgroundColor="white"
+		symbolRegColor3Value.style.backgroundColor="black"
+
+		var polys=NativeSymbolSelect.getElementsByTagName("polygon")
+		polys.item(0).setAttribute("fill","black")
+		if(polys.length>1)
+			polys.item(1).setAttribute("fill","white")
+		if(polys.length>2)
+			polys.item(2).setAttribute("fill","black")
+	}
+	NativeIdSelect=null
+}
+//---hilight selected symbol to plant--
+var PlantMeId
+function plantThisSymbol(defId)
+{
+	if(PlantMeId)
+	{
+		var myDiv=document.getElementById(PlantMeId+"Div")
+		myDiv.style.borderWidth=""
+		myDiv.style.borderStyle=""
+		myDiv.style.borderColor=""
+	}
+	var myDiv=document.getElementById(defId+"Div")
+	myDiv.style.borderWidth="1"
+	myDiv.style.borderStyle="solid"
+	myDiv.style.borderColor="black"
+
+	PlantMeId=defId
+}
+//---click on app svg---
+function plantAppSymbol(event)
+{
+	var offsets = svgDiv.getBoundingClientRect();
+	var top = offsets.top;
+	var left = offsets.left;
+	//---requred for FF----
+	var eventObj = event || window.event;
+
+	var x = eventObj.clientX-left
+	var y = eventObj.clientY-top
+	//---time stamp @ id---
+	var utcMS=new Date().getTime()
+
+	var defG=document.getElementById(PlantMeId)
+	PlantMe=defG.cloneNode(true)
+	PlantMe.id=PlantMeId+"_"+utcMS
+	PlantMe.setAttribute("transform","translate("+x+" "+y+")")
+	AppSymbolG.appendChild(PlantMe)
+
+	appPlantedValue.value=svgDiv.innerHTML
+}
+
+//---user size 30x30 px---
+function sizeMe(symbolG,size)
+{
+	var mySVG=symbolG.parentNode
+	for(var k=0;k<symbolG.childNodes.length;k++)
+	{
+		var pgon=symbolG.childNodes.item(k)
+		pgon.setAttribute("transform","scale("+size+")")
+		computePolyPoints(mySVG,pgon)
+	}
+}
+
+//---changes all transformed points to screen points---
+function computePolyPoints(mySVG,myPoly)
+{
+	var sCTM = myPoly.getCTM()
+	var pointsList = myPoly.points;
+	var n = pointsList.numberOfItems;
+	for(var m=0;m<n;m++)
+	{
+		var mySVGPoint = mySVG.createSVGPoint();
+		mySVGPoint.x = pointsList.getItem(m).x
+		mySVGPoint.y = pointsList.getItem(m).y
+		mySVGPointTrans = mySVGPoint.matrixTransform(sCTM)
+		pointsList.getItem(m).x=mySVGPointTrans.x
+		pointsList.getItem(m).y=mySVGPointTrans.y
+	}
+	//---force removal of transform--
+	myPoly.setAttribute("transform","")
+	myPoly.removeAttribute("transform")
+}
+
+//---show 40 .svg files in textarea---
+function showNativeFiles()
+{
+    var NativeID=[]
+	NativeID[0]="Star4"
+	NativeID[1]="Star5"
+	NativeID[2]="Star6"
+	NativeID[3]="Star10"
+	NativeID[4]="Star15"
+	NativeID[5]="Pgon3u"
+	NativeID[6]="Pgon3d"
+	NativeID[7]="Pgon3r"
+	NativeID[8]="Pgon3l"
+	NativeID[9]="Pgon4d"
+	NativeID[10]="Pgon4"
+	NativeID[11]="Pgon6"
+	NativeID[12]="Circle"
+	NativeID[13]="EllipseHoriz"
+	NativeID[14]="EllipseVert"
+	NativeID[15]="RhombHoriz"
+	NativeID[16]="RhombVert"
+	NativeID[17]="CircleStar6"
+	NativeID[18]="Pgon4vStar6"
+	NativeID[19]="Pgon4Star6"
+	NativeID[20]="Pgon4dCircle"
+	NativeID[21]="Pgon4vRhombHoriz"
+	NativeID[22]="Pgon4vRhombVert"
+	NativeID[23]="CircleRhombHoriz"
+	NativeID[24]="CircleRhombVert"
+	NativeID[25]="CirclePgon3r"
+	NativeID[26]="CirclePgon3t"
+	NativeID[27]="CirclePgon3l"
+	NativeID[28]="CirclePgon3b"
+	NativeID[29]="CirclePgon4d"
+	NativeID[30]="CircleEllipseVert"
+	NativeID[31]="CircleEllipseHoriz"
+	NativeID[32]="Pgon4Circle"
+	NativeID[33]="CirclePgon4"
+	NativeID[34]="Pgon6Circle"
+	NativeID[35]="Pgon4CircleStar5"
+	NativeID[36]="CirclePgon4vStar6"
+	NativeID[37]="Star6Circle"
+	NativeID[38]="Pgon6Star6"
+	NativeID[39]="Pgon8Star4"
+
+	var loadXML = new XMLHttpRequest;
+	for(var k=0;k<NativeID.length;k++)
+	{
+		var SVGFile="NativeLibrary/"+NativeID[k]+".svg"
+		if (loadXML != null)
+		{
+			loadXML.open("GET", SVGFile, false);
+			loadXML.onreadystatechange = handler;
+			loadXML.send();
+		}
+	}
+	function handler()
+	{
+		if(loadXML.readyState == 4 && loadXML.status == 200)
+		{
+			var myDiv=document.getElementById(NativeID[k]+"Div")
+			nativeLibraryValue.value+=loadXML.responseText
+			myDiv.innerHTML=loadXML.responseText
+			myNativeSymbolG=document.getElementById(NativeID[k])
+			///---increase size to 30----
+			sizeMe(myNativeSymbolG,30)
+			myNativeSymbolG.setAttribute("transform","translate(15 15)")
+		}
+	}
+}
+//--color numbers included in id---
+function buildSymbolColorSelection()
+{
+	var colors=[]
+	colors[0]="Lime"
+	colors[1]="SpringGreen"
+	colors[2]="Green"
+	colors[3]="MediumSeaGreen"
+	colors[4]="SeaGreen"
+	colors[5]="GreenYellow"
+	colors[6]="Red"
+	colors[7]="Crimson"
+	colors[8]="OrangeRed"
+	colors[9]="Blue"
+	colors[10]="LightBlue"
+	colors[11]="DodgerBlue"
+	colors[12]="RoyalBlue"
+	colors[13]="DeepPink"
+	colors[14]="HotPink"
+	colors[15]="Cyan"
+	colors[16]="Turquoise"
+	colors[17]="Gray"
+	colors[18]="Silver"
+	colors[19]="GoldenRod"
+	colors[20]="Gold"
+	colors[21]="Tan"
+	colors[22]="DarkKhaki"
+	colors[23]="Yellow"
+	colors[24]="Teal"
+	colors[25]="DarkOrange"
+	colors[26]="Brown"
+	colors[27]="Maroon"
+	colors[28]="Sienna"
+	colors[29]="SaddleBrown"
+	colors[30]="Purple"
+	colors[31]="Magenta"
+	colors[32]="Indigo"
+	colors[33]="DarkOrchid"
+	colors[34]="BlueViolet"
+	colors[35]="Violet"
+
+	var n=2
+	for(var k=0;k<36;k++)
+	{
+		n++
+		if(n<10)
+			cnt="0"+n
+		else
+			cnt=n
+
+		var myColor=colors[k]
+		var option=document.createElement("OPTION")
+		option.style.backgroundColor=myColor
+		option.value=myColor
+		option.title=myColor
+		option.text=cnt
+		symbolRegisterColor1Select.appendChild(option)
+
+		var option=document.createElement("OPTION")
+		option.style.backgroundColor=myColor
+		option.value=myColor
+		option.title=myColor
+		option.text=cnt
+		symbolRegisterColor2Select.appendChild(option)
+
+		var option=document.createElement("OPTION")
+		option.style.backgroundColor=myColor
+		option.value=myColor
+		option.title=myColor
+		option.text=cnt
+		symbolRegisterColor3Select.appendChild(option)
+	}
+}
+
+</script>
+
+</body>
+
+</html>

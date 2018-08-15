@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <title>C03A -Build A <span style="display:none">SVG</span>  Polygon Symbol</title>
+  <script type="text/javascript" src="highlight.pack.js"></script>
+  <script type="text/javascript" src="highlightCode.js"></script>
+  <link href='highlight.css' rel='stylesheet' />
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+</head>
+<body style='padding:10px;font-family:arial;background:#f0f8ff'>
+<center>
+<h4>Build A <span style="display:none">SVG</span>  Polygon Symbol</h4>
+<div style='width:90%;background-color:gainsboro;text-align:justify;padding:10px;border-radius:6px;'>
+Build and transform polygons. Create a symbol using the transformed polygons. Re-compute transformed points to screen points and save as a symbol &lt;g&gt;, sized at 1.0. The symbol &lt;g&gt; can be sized and placed in other applications.
+</div>
+<table>
+<tr>
+
+<td>
+<div style="border:1px solid black;padding:12px;">
+<b>Add A Polygon</b><br />
+Center X:<input type=text id=centerXValue size=1 value=200/>
+Center Y:<input type=text id=centerYValue size=1 value=200 /><br />
+
+<input type=radio id=regPolyCheck checked name=typeCheck /><b>:Regular Polygon</b>
+
+Sides:<input type=text id=pointsValue size=1 value=5 />
+Radius:<input type=text id=radiusValue size=1 value=50 /><br />
+<input type=radio id=arcCheck name=typeCheck  /><b>:Circular Arc</b>
+inner Radius:<input type=checkbox id=innerRadiusCheck checked /><input type=text id=arcInnerRadiusValue size=1 value=50 />
+outer Radius:<input type=text id=arcOuterRadiusValue size=1 value=80 />
+<br />Start Angle:<input type=text id=arcStartAngleValue size=1 value=45 />
+End Angle:<input type=text id=arcEndAngleValue size=1 value=160 /><br />
+<input type=radio id=rectCheck name=typeCheck /><b>:Rectangle</b>
+Width:<input type=text id=rectWidthValue  size=1  />
+Height<input type=text id=rectHeightValue  size=1  /> <br />
+Color:<span id=colorSelectSpan style="background-color:black">&nbsp;&nbsp;&nbsp;&nbsp;</span><select onChange=selectColor() id=polygonColorSelect>
+<option title='Black'  value="black"  style='color:white;background-color:black'>01</option>
+<option title='White'  value="white" selected style='background-color:white'>02</option>
+</select>
+<button onClick=buildPolygon()>Build Polygon</button>
+</div>
+
+<div style='border:1px solid black;padding:12px;'>
+<b>Transform active polygon</b><br />
+Rotate:<input type=text id=rotateValue size=1 value=30 /><button onClick=rotate()>rotate</button><br />
+X,Y scale:<input type=text id=scaleXYValue size=4 value='1.2,1.2' /> <button onClick=scaleXY()>scaleXY</button><br />
+<input type=text id=skewXValue size=1 value=5 /><button onClick=skewX()>skewX</button>
+<input type=text id=skewYValue size=1 value=5 /><button onClick=skewY()>skewY</button><br />
+&nbsp;&nbsp;<button onClick=computePolyScreenPoints()>Screen Points</button><br />
+<button onClick=reset()>reset transforms</button><br />
+</div>
+</td>
+<td>
+<div id="svgDiv" style='width:400px;height:400px;'>
+<svg id="mySVG" width="400" height="400">
+  <defs>
+    <pattern id="smallGrid" width="10" height="10" patternUnits="userSpaceOnUse">
+      <path id="smallGridPath" d="M 10 0 L 0 0 0 10" fill="none" stroke="gray" stroke-width="0.5"/>
+    </pattern>
+    <pattern id="grid" width="100" height="100" patternUnits="userSpaceOnUse">
+      <rect width="100" height="100" fill="url(#smallGrid)"/>
+      <path id="largeGridPath" d="M 100 0 L 0 0 0 100" fill="none" stroke="gray" stroke-width="1"/>
+    </pattern>
+  </defs>
+  <rect x="0" y="0" width="100%" height="100%" fill="url(#grid)" />
+<g id="polygonG" stroke-width="3"><polygon fill="black" stroke="none" onmousedown="startDrag(evt)" onmouseup="endDrag()" onmousemove="drag(evt)" transform="matrix(0.866025 0.5 -0.5 0.866025 123.795 -243.205)" points="230,200 185,174.019 185,225.981" /><polygon opacity="0.6" fill="silver" stroke="none" onmousedown="startDrag(evt)" onmouseup="endDrag()" onmousemove="drag(evt)" transform="matrix(0.866025 -0.5 0.5 0.866025 -89.2076 105.321)" points="265.244,154 248.04,142.161 226.29,132.369 200.943,125.052 173.108,120.53 144,119 114.892,120.53 87.0569,125.052 61.7101,132.369 39.9597,142.161 22.7564,154 10.8521,167.369 4.76693,181.683 4.76694,196.317 10.8521,210.631 22.7564,224 39.9597,235.839 61.7101,245.631 87.0569,252.948 114.892,257.47 144,259 173.108,257.47 200.943,252.948 226.29,245.631 248.04,235.839 265.244,224 277.148,210.631 283.233,196.317 283.233,181.683 277.148,167.369" /><polygon opacity="0.6" fill="silver" stroke="none" onmousedown="startDrag(evt)" onmouseup="endDrag()" onmousemove="drag(evt)" transform="matrix(0.866025 0.5 -0.5 0.866025 245.453 -40.0186)" points="265.244,154 248.04,142.161 226.29,132.369 200.943,125.052 173.108,120.53 144,119 114.892,120.53 87.0569,125.052 61.7101,132.369 39.9597,142.161 22.7564,154 10.8521,167.369 4.76693,181.683 4.76694,196.317 10.8521,210.631 22.7564,224 39.9597,235.839 61.7101,245.631 87.0569,252.948 114.892,257.47 144,259 173.108,257.47 200.943,252.948 226.29,245.631 248.04,235.839 265.244,224 277.148,210.631 283.233,196.317 283.233,181.683 277.148,167.369" /><polygon fill="black" stroke="none" onmousedown="startDrag(evt)" onmouseup="endDrag()" onmousemove="drag(evt)" transform="matrix(-0.965926 -0.258819 0.258819 -0.965926 299.098 725.85)" points="181.484,295.759 196.133,370.424 207.382,356.818" /><polygon fill="yellow" stroke="none" onmousedown="startDrag(evt)" onmouseup="endDrag()" onmousemove="drag(evt)" transform="matrix(0.5 0 0 1 100 0)" points="340,200 333.148,156.738 313.262,117.71 282.29,86.7376 243.262,66.8521 200,60 156.738,66.8521 117.71,86.7376 86.7376,117.71 66.8521,156.738 60,200 66.8521,243.262 86.7376,282.29 117.71,313.262 156.738,333.148 200,340 243.262,333.148 282.29,313.262 313.262,282.29 333.148,243.262" /><polygon fill="black" stroke="none" onmousedown="startDrag(evt)" onmouseup="endDrag()" onmousemove="drag(evt)" transform="matrix(1 0 0 1 -1 -155)" points="230,200 228.532,190.729 224.271,182.366 217.634,175.729 209.271,171.468 200,170 190.729,171.468 182.366,175.729 175.729,182.366 171.468,190.729 170,200 171.468,209.271 175.729,217.634 182.366,224.271 190.729,228.532 200,230 209.271,228.532 217.634,224.271 224.271,217.634 228.532,209.271" /><polygon fill="darkkhaki" stroke="none" onmousedown="startDrag(evt)" onmouseup="endDrag()" onmousemove="drag(evt)" transform="matrix(2.22027e-007 -0.999999 0.999999 2.22027e-007 199 221.999)" points="182,36 188.18,35.5106 193.756,34.0902 198.18,31.8779 201.021,29.0902 202,26 201.021,22.9098 198.18,20.1222 193.756,17.9098 188.18,16.4894 182,16 175.82,16.4894 170.244,17.9098 165.82,20.1222 162.979,22.9098 162,26 162.979,29.0902 165.82,31.8779 170.244,34.0902 175.82,35.5106" /><polygon fill="darkkhaki" stroke="none" onmousedown="startDrag(evt)" onmouseup="endDrag()" onmousemove="drag(evt)" transform="matrix(-1.24374e-007 1 -1 -1.24374e-007 200.34 -141.34)" points="182,36 188.18,35.5106 193.756,34.0902 198.18,31.8779 201.021,29.0902 202,26 201.021,22.9098 198.18,20.1222 193.756,17.9098 188.18,16.4894 182,16 175.82,16.4894 170.244,17.9098 165.82,20.1222 162.979,22.9098 162,26 162.979,29.0902 165.82,31.8779 170.244,34.0902 175.82,35.5106" /><polygon fill="black" stroke="none" onmousedown="startDrag(evt)" onmouseup="endDrag()" onmousemove="drag(evt)" transform="matrix(1 0 0 1 3 -21)" points="148.038,230 154.037,238.567 161.433,245.963 170,251.962 179.479,256.382 189.581,259.088 200,260 210.419,259.088 220.521,256.382 230,251.962 238.567,245.963 245.963,238.567 251.962,230 269.282,240 261.284,251.423 251.423,261.284 240,269.282 227.362,275.175 213.892,278.785 200,280 186.108,278.785 172.638,275.175 160,269.282 148.577,261.284 138.716,251.423 130.718,240" /><polygon fill="black" stroke="none" onmousedown="startDrag(evt)" onmouseup="endDrag()" onmousemove="drag(evt)" transform="matrix(1 0 0 1 1 -75)" points="148.038,230 154.037,238.567 161.433,245.963 170,251.962 179.479,256.382 189.581,259.088 200,260 210.419,259.088 220.521,256.382 230,251.962 238.567,245.963 245.963,238.567 251.962,230 269.282,240 261.284,251.423 251.423,261.284 240,269.282 227.362,275.175 213.892,278.785 200,280 186.108,278.785 172.638,275.175 160,269.282 148.577,261.284 138.716,251.423 130.718,240" /><polygon fill="black" stroke="none" onmousedown="startDrag(evt)" onmouseup="endDrag()" onmousemove="drag(evt)" transform="matrix(1 0 0 1 1 25)" points="154.037,238.567 161.433,245.963 170,251.962 179.479,256.382 189.581,259.088 200,260 210.419,259.088 220.521,256.382 230,251.962 238.567,245.963 245.963,238.567 261.284,251.423 251.423,261.284 240,269.282 227.362,275.175 213.892,278.785 200,280 186.108,278.785 172.638,275.175 160,269.282 148.577,261.284 138.716,251.423" /><polygon opacity="1" fill="black" stroke="none" onmousedown="startDrag(evt)" onmouseup="endDrag()" onmousemove="drag(evt)" transform="matrix(1 0 0 1 1 -132)" points="154.037,238.567 161.433,245.963 170,251.962 179.479,256.382 189.581,259.088 200,260 210.419,259.088 220.521,256.382 230,251.962 238.567,245.963 245.963,238.567 261.284,251.423 251.423,261.284 240,269.282 227.362,275.175 213.892,278.785 200,280 186.108,278.785 172.638,275.175 160,269.282 148.577,261.284 138.716,251.423" /></g>
+</svg>
+</div>
+<div style='border:1px black solid;padding:12px;'>
+<b>Change active polygon</b> - All polygons can be drag/dropped<br />
+Delete:<input id=deleteRadio type=radio onClick=deleteActive();this.checked=false name=changeRadio />
+Top:<input id=topRadio  onClick=topActive();this.checked=false  type=radio name=changeRadio />
+Bottom:<input id=bottomRadio onClick=bottomActive();this.checked=false   type=radio name=changeRadio />
+Color:<input id=colorRadio  onClick=colorActive();this.checked=false  type=radio name=changeRadio />
+opacity:<input type=text size=1 id=opacityValue value="0.5" /><input id=opacityRadio  onClick=opacityActive();this.checked=false  type=radio name=changeRadio />
+<button title='click for each copy' onClick=copyActive()>copy</button>
+</div>
+
+<button onClick=clearAll()>Clear</button>
+<button onClick=saveSymbol()>Save</button>
+</td>
+</tr>
+
+
+</table>
+
+  SVG Source:
+  <div id=svgSourceDiv style=overflow:auto;width:100%;height:1px;text-align:left; /></div>
+  <br />Saved Symbol Source:<br />
+<textarea id=symbolSourceValue style='font-size:110%;font-family:lucida console;width:90%;height:200px'></textarea>
+ <br />  Javascript:
+  <div id=jsCodeDiv style=overflow:auto;width:100%;text-align:left; /></div>
+</center>
+<script id=myScript>
+var NS="http://www.w3.org/2000/svg"
+
+function buildPolygon()
+{
+    var cx=parseInt(centerXValue.value)
+    var cy=parseInt(centerYValue.value)
+
+    if(regPolyCheck.checked==true)
+    {
+        var points=parseInt(pointsValue.value)
+        var radius=parseInt(radiusValue.value)
+        //---regPolyCircleRad(vCnt,radius,centerX,centerY)---
+        regPolyCircleRad(points,radius,cx,cy)
+    }
+    if(rectCheck.checked==true)
+        buildRect()
+    if(arcCheck.checked==true)
+        buildArc()
+
+    showSourceSVG()
+}
+
+function buildRect()
+{
+    var cx=parseFloat(centerXValue.value)
+    var cy=parseFloat(centerYValue.value)
+    var width=parseFloat(rectWidthValue.value)
+    var height=parseFloat(rectHeightValue.value)
+    var x0=cx-.5*width
+    var y0=cy-.5*height
+    var x1=x0
+    var y1=y0+height
+    var x2=x0+width
+    var y2=y0+height
+    var x3=x0+width
+    var y3=y0
+
+    var myPolygon=document.createElementNS(NS,"polygon")
+    myPolygon.setAttribute("fill",PolygonFill)
+    myPolygon.setAttribute("onmousedown","startDrag(evt)")
+    myPolygon.setAttribute("onmousemove","drag(evt)")
+    myPolygon.setAttribute("onmouseup","endDrag()")
+    if(ActivePolygon)
+    ActivePolygon.setAttribute("stroke","none")
+    ActivePolygon=myPolygon
+    ActivePolygon.setAttribute("stroke","black")
+
+    polygonG.appendChild(ActivePolygon)
+
+    ActivePolygon.setAttribute("points",x0+","+y0 +" "+x1 +","+y1 +","+x2 +" "+y2 +","+x3 +" "+y3)
+
+    TransformRequestObj = ActivePolygon.ownerSVGElement.createSVGTransform()
+    //---attach new or existing transform to element, init its transform list---
+    var myTransformListAnim=ActivePolygon.transform
+    TransformList=myTransformListAnim.baseVal
+}
+
+//----create regular polygon based on a radius length:circumradius (radius of a circle passing through all points)--
+function regPolyCircleRad(vCnt,radius,centerX,centerY)
+{
+    var myPolygon=document.createElementNS(NS,"polygon")
+    myPolygon.setAttribute("fill",PolygonFill)
+    myPolygon.setAttribute("onmousedown","startDrag(evt)")
+    myPolygon.setAttribute("onmousemove","drag(evt)")
+    myPolygon.setAttribute("onmouseup","endDrag()")
+    if(ActivePolygon)
+        ActivePolygon.setAttribute("stroke","none")
+    ActivePolygon=myPolygon
+    ActivePolygon.setAttribute("stroke","black")
+
+    polygonG.appendChild(ActivePolygon)
+    TransformRequestObj = ActivePolygon.ownerSVGElement.createSVGTransform()
+    //---attach new or existing transform to element, init its transform list---
+    var myTransformListAnim=ActivePolygon.transform
+    TransformList=myTransformListAnim.baseVal
+
+    var myPoints=myPolygon.points
+
+    var polyXPts      = Array(vCnt);
+    var polyYPts      = Array(vCnt);
+    var vertexAngle   = 360/vCnt;
+    //---init polygon points processor---
+    for(var v=0; v<vCnt; v++)
+    {
+        theAngle = (v*vertexAngle)*Math.PI/180;
+        polyXPts[v] = radius*Math.cos(theAngle);
+        polyYPts[v] = -radius*Math.sin(theAngle);
+    }
+    //--note points are CCW(this is important for future ref)---
+    for(var v=0;v<vCnt; v++)
+    {
+        var point=mySVG.createSVGPoint();
+        point.x=centerX+polyXPts[v]
+        point.y=centerY+polyYPts[v]
+        myPoints.appendItem(point)
+    }
+}
+function buildArc()
+{
+    var myPolygon=document.createElementNS(NS,"polygon")
+    myPolygon.setAttribute("fill",PolygonFill)
+    myPolygon.setAttribute("onmousedown","startDrag(evt)")
+    myPolygon.setAttribute("onmousemove","drag(evt)")
+    myPolygon.setAttribute("onmouseup","endDrag()")
+    if(ActivePolygon)
+    ActivePolygon.setAttribute("stroke","none")
+    ActivePolygon=myPolygon
+    ActivePolygon.setAttribute("stroke","black")
+
+    polygonG.appendChild(ActivePolygon)
+
+    var centerX=parseFloat(centerXValue.value)
+    var centerY=parseFloat(centerYValue.value)
+    var innerRadius=parseFloat(arcInnerRadiusValue.value)
+    var outerRadius=parseFloat(arcOuterRadiusValue.value)
+    var startAngle=parseFloat(arcStartAngleValue.value)
+    var endAngle=parseFloat(arcEndAngleValue.value)
+
+    var totalAngle=Math.abs(endAngle-startAngle)
+    //--place point every 10 degrees--
+    var anglePerPnt=10
+    var maxPnts=parseInt(360/anglePerPnt)+1
+    var points=parseInt(totalAngle/anglePerPnt)
+    var totalDegrees=0
+    var outerPoints=[]
+    var innerPoints=[]
+    for(var k=0;k<maxPnts;k++)
+    {
+        var nextDegrees=startAngle+anglePerPnt*k
+
+        if(nextDegrees<endAngle)
+            totalDegrees=nextDegrees
+        else  //---last point---
+            totalDegrees=endAngle
+        //---outer points---
+        outerPoints.push(polarToCartesian(centerX, centerY, outerRadius, totalDegrees));
+        //---inner points---
+        innerPoints.push(polarToCartesian(centerX, centerY, innerRadius, totalDegrees));
+
+        if(totalDegrees==endAngle)
+            break;
+    }
+
+    if(innerRadiusCheck.checked==true)
+        var points=innerPoints.reverse().join()+" "+ outerPoints.join()
+    else
+        var points=outerPoints.reverse().join()
+
+    symbolSourceValue.value=innerPoints.reverse().join(" ")+"\n\n"
+    symbolSourceValue.value+=outerPoints.join()
+    ActivePolygon.setAttribute("points",points)
+
+    TransformRequestObj = ActivePolygon.ownerSVGElement.createSVGTransform()
+    //---attach new or existing transform to element, init its transform list---
+    var myTransformListAnim=ActivePolygon.transform
+    TransformList=myTransformListAnim.baseVal
+}
+function polarToCartesian(centerX, centerY,radius,  angleInDegrees)
+{
+    var angleInRadians = (angleInDegrees-90) * Math.PI / 180.0;
+    return [
+    centerX + (radius * Math.cos(angleInRadians)),
+    centerY + (radius * Math.sin(angleInRadians))
+    ];
+}
+
+function polygonCentroid(myPolygon)
+{
+    var pointList=myPolygon.points
+    var m=pointList.numberOfItems
+    var total_area = 0;
+    var centroid = [0, 0];
+    var a = pointList.getItem(0);
+    for (i = 0; i < m - 2; i++)
+    {
+        var b = pointList.getItem(i + 1), c = pointList.getItem(i + 2);
+        var area = 0.5 * Math.abs((a.x - c.x) * (b.y - a.y) - (a.x - b.x) * (c.y - a.y));
+        total_area += area;
+        centroid[0] += area * (a.x + b.x + c.x);
+        centroid[1] += area * (a.y + b.y + c.y);
+    }
+    centroid[0] /= total_area * 3;
+    centroid[1] /= total_area * 3;
+
+    return centroid
+}
+
+//--button--
+function rotate()
+{
+    var angle=parseFloat(rotateValue.value)
+    var centroid=polygonCentroid(ActivePolygon)
+    TransformRequestObj.setRotate(angle,centroid[0],centroid[1])
+    TransformList.appendItem(TransformRequestObj)
+    TransformList.consolidate()
+
+    showSourceSVG()
+}
+//---button---
+function scaleXY()
+{
+    var scaleX=parseFloat(scaleXYValue.value.split(",")[0])
+    var scaleY=parseFloat(scaleXYValue.value.split(",")[1])
+    var centroid=polygonCentroid(ActivePolygon)
+
+    TransformRequestObj.setTranslate(centroid[0],centroid[1])
+    TransformList.appendItem(TransformRequestObj)
+    TransformList.consolidate()
+    TransformRequestObj.setScale(scaleX,scaleY)
+    TransformList.appendItem(TransformRequestObj)
+    TransformList.consolidate()
+    TransformRequestObj.setTranslate(-centroid[0],-centroid[1])
+    TransformList.appendItem(TransformRequestObj)
+    TransformList.consolidate()
+
+    showSourceSVG()
+}
+//---button---
+function skewX()
+{
+    var skwX=parseFloat(skewXValue.value) //---deg
+    var centroid=polygonCentroid(ActivePolygon)
+
+    TransformRequestObj.setTranslate(centroid[0],centroid[1])
+    TransformList.appendItem(TransformRequestObj)
+    TransformList.consolidate()
+
+    TransformRequestObj.setSkewX(skwX)
+    TransformList.appendItem(TransformRequestObj)
+    TransformList.consolidate()
+
+    TransformRequestObj.setTranslate(-centroid[0],-centroid[1])
+    TransformList.appendItem(TransformRequestObj)
+    TransformList.consolidate()
+
+    showSourceSVG()
+}
+//---button---
+function skewY()
+{
+    var skwY=parseFloat(skewYValue.value) //---deg
+    var centroid=polygonCentroid(ActivePolygon)
+
+
+    TransformRequestObj.setTranslate(centroid[0],centroid[1])
+    TransformList.appendItem(TransformRequestObj)
+    TransformList.consolidate()
+
+    TransformRequestObj.setSkewY(skwY)
+    TransformList.appendItem(TransformRequestObj)
+    TransformList.consolidate()
+
+    TransformRequestObj.setTranslate(-centroid[0],-centroid[1])
+    TransformList.appendItem(TransformRequestObj)
+    TransformList.consolidate()
+
+    showSourceSVG()
+}
+//---button---
+function reset()
+{
+    //---force removal---
+    ActivePolygon.setAttribute("transform","")
+    ActivePolygon.removeAttribute("transform")
+    //---reinstate a transform attribute---
+    ActivePolygon.setAttribute("transform","")
+    TransformRequestObj=mySVG.createSVGTransform()
+    var animTransformList=ActivePolygon.transform
+    TransformList=animTransformList.baseVal
+    showSourceSVG()
+}
+
+function deleteActive()
+{
+    polygonG.removeChild(ActivePolygon)
+
+    ActivePolygon=null
+    showSourceSVG()
+}
+function topActive()
+{
+    polygonG.appendChild(ActivePolygon)
+    showSourceSVG()
+}
+
+function bottomActive()
+{
+    polygonG.insertBefore(ActivePolygon,polygonG.firstChild)
+    showSourceSVG()
+}
+
+function colorActive()
+{
+    ActivePolygon.setAttribute("fill",PolygonFill)
+    showSourceSVG()
+}
+
+function opacityActive()
+{
+    var opacity=opacityValue.value
+    ActivePolygon.setAttribute("opacity",opacity)
+    showSourceSVG()
+}
+
+function copyActive()
+{
+    var clone=ActivePolygon.cloneNode(true)
+    clone.removeAttribute("stroke")
+    polygonG.insertBefore(clone,ActivePolygon)
+
+    TransformRequestObj.setTranslate(10,10)
+    TransformList.appendItem(TransformRequestObj)
+    TransformList.consolidate()
+
+    showSourceSVG()
+}
+
+var SessionCnt=0
+function saveSymbol()
+{
+    if(ActivePolygon)
+        ActivePolygon.setAttribute("stroke","none")
+    var bb=polygonG.getBBox()
+    var bbw=bb.width
+    var bbh=bb.height
+    var cx=bb.x+.5*bb.width
+    var cy=bb.y+.5*bb.height
+
+    var requestSize=1
+    if(bbw>=bbh)
+        var scale=requestSize/bbw
+    else
+        var scale=requestSize/bbh
+
+    polygonG.setAttribute("transform", "translate("+(-cx*scale)+" "+(-cy*scale)+")scale("+scale+")" )
+
+    polygonG.removeAttribute("stroke-width")
+    var polys=polygonG.childNodes
+    for(var k=0;k<polys.length;k++)
+    {
+        var poly=polys.item(k)
+        poly.removeAttribute("onmousedown")
+        poly.removeAttribute("onmousemove")
+        poly.removeAttribute("onmouseup")
+
+        computePolyPoints(poly)
+
+    }
+    polygonG.removeAttribute("transform")
+    SessionCnt++
+    polygonG.id="Symbol"+SessionCnt
+    var mySymbol=document.getElementById("Symbol"+SessionCnt)
+    symbolSourceValue.value+=new XMLSerializer().serializeToString(mySymbol)
+
+    testAddSymbol()
+    showSourceSVG()
+}
+
+function testAddSymbol()
+{
+    var mySymbol=document.getElementById("Symbol"+SessionCnt)
+
+    var cloneG=mySymbol.cloneNode(true)
+    mySVG.appendChild(cloneG)
+    sizeMe(cloneG,20)
+    cloneG.id="polygonTestSymbol"
+    cloneG.setAttribute("size","30")
+    cloneG.setAttribute("transform","translate(200,200)")
+
+}
+
+function sizeMe(cloneG,size)
+{
+    for(var k=0;k<cloneG.childNodes.length;k++)
+    {
+        var pgon=cloneG.childNodes.item(k)
+        pgon.setAttribute("transform","scale("+size+")")
+        computePolyPoints(pgon)
+    }
+}
+//---button---
+function clearAll()
+{
+    polygonG.id="polygonG"
+
+    polygonG.setAttribute("stroke-width","3")
+    var polys=polygonG.childNodes
+    for(var k=polys.length-1;k>=0;k--)
+        polygonG.removeChild(polys.item(k))
+    if(document.getElementById("polygonTestSymbol"))
+        mySVG.removeChild(document.getElementById("polygonTestSymbol"))
+    showSourceSVG()
+}
+//---changes all transformed points to screen points---
+function computePolyPoints(Pgon)
+{
+    var sCTM = Pgon.getCTM()
+    var pointsList = Pgon.points;
+    var n = pointsList.numberOfItems;
+    for(var m=0;m<n;m++)
+    {
+        var mySVGPoint = mySVG.createSVGPoint();
+        mySVGPoint.x = pointsList.getItem(m).x
+        mySVGPoint.y = pointsList.getItem(m).y
+        mySVGPointTrans = mySVGPoint.matrixTransform(sCTM)
+        pointsList.getItem(m).x=mySVGPointTrans.x
+        pointsList.getItem(m).y=mySVGPointTrans.y
+    }
+    //---force removal of transform--
+    Pgon.setAttribute("transform","")
+    Pgon.removeAttribute("transform")
+}
+
+//---changes all transformed points to screen points---
+function computePolyScreenPoints()
+{
+    var sCTM = ActivePolygon.getCTM()
+    ActivePolygon.setAttribute("transform","")
+    ActivePolygon.removeAttribute("transform")
+    var pointsList = ActivePolygon.points;
+    var n = pointsList.numberOfItems;
+    for(var m=0;m<n;m++)
+    {
+        var mySVGPoint = mySVG.createSVGPoint();
+        mySVGPoint.x = pointsList.getItem(m).x
+        mySVGPoint.y = pointsList.getItem(m).y
+        mySVGPointTrans = mySVGPoint.matrixTransform(sCTM)
+        pointsList.getItem(m).x=mySVGPointTrans.x
+        pointsList.getItem(m).y=mySVGPointTrans.y
+    }
+    //---reinstate a transform attribute---
+    ActivePolygon.setAttribute("transform","")
+    //---reset---
+    TransformRequestObj=mySVG.createSVGTransform()
+    var animTransformList=ActivePolygon.transform
+    TransformList=animTransformList.baseVal
+
+    showSourceSVG()
+}
+var PolygonFill="black"
+function selectColor()
+{
+    PolygonFill=polygonColorSelect.options[polygonColorSelect.selectedIndex].value
+    colorSelectSpan.style.backgroundColor=PolygonFill
+}
+</script>
+<script>
+//--color numbers included in id---
+function buildColorSelection()
+{
+	var colors=[]
+	colors[0]="Lime"
+	colors[1]="SpringGreen"
+	colors[2]="Green"
+	colors[3]="MediumSeaGreen"
+	colors[4]="SeaGreen"
+	colors[5]="GreenYellow"
+	colors[6]="Red"
+	colors[7]="Crimson"
+	colors[8]="OrangeRed"
+	colors[9]="Blue"
+	colors[10]="LightBlue"
+	colors[11]="DodgerBlue"
+	colors[12]="RoyalBlue"
+	colors[13]="DeepPink"
+	colors[14]="HotPink"
+	colors[15]="Cyan"
+	colors[16]="Turquoise"
+	colors[17]="Gray"
+	colors[18]="Silver"
+	colors[19]="GoldenRod"
+	colors[20]="Gold"
+	colors[21]="Tan"
+	colors[22]="DarkKhaki"
+	colors[23]="Yellow"
+	colors[24]="Teal"
+	colors[25]="DarkOrange"
+	colors[26]="Brown"
+	colors[27]="Maroon"
+	colors[28]="Sienna"
+	colors[29]="SaddleBrown"
+	colors[30]="Purple"
+	colors[31]="Magenta"
+	colors[32]="Indigo"
+	colors[33]="DarkOrchid"
+	colors[34]="BlueViolet"
+	colors[35]="Violet"
+
+	var n=2
+	for(var k=0;k<36;k++)
+	{
+		n++
+		if(n<10)
+			cnt="0"+n
+		else
+			cnt=n
+
+		var myColor=colors[k]
+		var option=document.createElement("OPTION")
+		option.style.backgroundColor=myColor
+		option.value=myColor
+		option.title=myColor
+		option.text=cnt
+		polygonColorSelect.appendChild(option)
+
+	}
+}
+
+document.addEventListener("onload",init(),false)
+function init()
+{
+    showSourceSVG()
+    showSourceJS()
+    buildColorSelection()
+}
+</script>
+<script>
+var TransformRequestObj
+var TransformList
+var DragTarget=null;
+var Dragging = false;
+var OffsetX = 0;
+var OffsetY = 0;
+//---mouse down over element---
+var ActivePolygon
+function startDrag(evt)
+{
+	if(!Dragging) //---prevents dragging conflicts on other draggable elements---
+	{
+		DragTarget = evt.target;
+		if(ActivePolygon)
+		ActivePolygon.setAttribute("stroke","none")
+        ActivePolygon=DragTarget
+		ActivePolygon.setAttribute("stroke","black")
+
+		//---reference point to its respective viewport--
+		var pnt = DragTarget.ownerSVGElement.createSVGPoint();
+		pnt.x = evt.clientX;
+		pnt.y = evt.clientY;
+		//---elements transformed and/or in different(svg) viewports---
+		var sCTM = DragTarget.getScreenCTM();
+		var Pnt = pnt.matrixTransform(sCTM.inverse());
+
+		TransformRequestObj = ActivePolygon.ownerSVGElement.createSVGTransform()
+		//---attach new or existing transform to element, init its transform list---
+		var myTransformListAnim=ActivePolygon.transform
+		TransformList=myTransformListAnim.baseVal
+
+		OffsetX = Pnt.x
+		OffsetY = Pnt.y
+
+		Dragging=true;
+	}
+}
+//---mouse move---
+function drag(evt)
+{
+	if(Dragging)
+	{
+		var pnt = DragTarget.ownerSVGElement.createSVGPoint();
+		pnt.x = evt.clientX;
+		pnt.y = evt.clientY;
+		//---elements in different(svg) viewports, and/or transformed ---
+		var sCTM = DragTarget.getScreenCTM();
+		var Pnt = pnt.matrixTransform(sCTM.inverse());
+		Pnt.x -= OffsetX;
+		Pnt.y -= OffsetY;
+
+		TransformRequestObj.setTranslate(Pnt.x,Pnt.y)
+		TransformList.appendItem(TransformRequestObj)
+		TransformList.consolidate()
+	}
+}
+//--mouse up---
+function endDrag()
+{
+	Dragging = false;
+	showSourceSVG()
+}
+
+</script>
+</body>
+
+</html>

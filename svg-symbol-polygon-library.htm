@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <title>C051 - Build Polygon Symbols for Library(Stack)</title>
+  <script type="text/javascript" src="highlight.pack.js"></script>
+  <script type="text/javascript" src="highlightCode.js"></script>
+  <link href='highlight.css' rel='stylesheet' />
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+</head>
+<body style='padding:0px;font-family:arial;background:#f0f8ff'>
+<center>
+<h4>Build Polygon Symbols for Library(Stack)</h4>
+<div style='width:90%;background-color:gainsboro;text-align:justify;padding:10px;border-radius:10px;'>
+Use this tool to create polygon symbols with one, two, or three stacked polygons. The polygons are arranged in the following order: Bottom(#1),  Middle(#2), and Top(#3). Typically radius/side is set the from larger to smaller, so the previous polygon is not fully covered.
+You can scale a stacked polygon it in the x and/or y direction, and rotate it. You may give the symbol a Name to help indentify it. When the symbol is as required, select 'SAVE' to create it's svg file.
+The symbol is saved as size=1. Note: The symbol id includes a time stamp(UTC ms). When the symbol svg file is a saved, it should have the same name as its id.  The default fill colors for the saved polygons are: bottom=white, middle=black, top=white.
+</div>
+<table><tr>
+<td>Symbol Polygons:
+	<table style="width:350px;border:1px solid black">
+	<tr><td><input style='background-color:blue' checked type=radio name=polyRadio id=polyBotRadio onClick='Pgon=polyBot' />:Bottom
+	</td>
+	<td><input style='background-color:lime'  type=radio name=polyRadio id=polyMidRadio onClick='Pgon=polyMid' />:Middle
+	</td>
+	<td><input style='background-color:red'  type=radio name=polyRadio id=polyTopRadio onClick='Pgon=polyTop' />:Top:
+	</td></tr>
+	</table>
+    <table style="width:350px;border:1px solid black"><tr>
+    <td><input type=radio checked name=polyTypeRadio id=regularRadio />:<b>Regular</b></td>
+    <td><input type=text  style="width:30px;" id=regPolySidesValue value=8 />:Sides</td>
+    <td><input type=text id=regPolyRadiusValue  style="width:30px;" value=60 />:Radius</td>
+    </tr>
+	</table>
+    <table style="width:350px;border:1px solid black"><tr>
+    <td><input type=radio name=polyTypeRadio  id=rhombusRadio  />:<b>Rhombus</b></td>
+    <td><input type=text id=rhombusAngleValue    style="width:30px;"  />:Angle</td>
+    <td><input type=text id=rhombusSideLenValue  style="width:30px;"  />:Side</td>
+	</tr>
+	</table>
+    <table style="width:350px;border:1px solid black"><tr>
+    <td><input type=radio name=polyTypeRadio  id=starRadio  />:<b>Star</b></td>
+    <td><input type=text id=starPointsValue  style="width:30px;"  />:Points</td>
+    <td><input type=text id=starRadiusValue  style="width:30px;"  />:Radius</td>
+    </tr>
+	</table>
+<center><button onClick="stackPoly()" >add</button>
+<button onClick=removePoly()>remove</button></center>
+</td>
+<td><div id=svgDiv style='width:200px;height:200px;background-color:lightgreen'>
+<svg id="polySymbolSVG" width="100%"  height="100%" ><g id="polySymbolG"><polygon id="polyBot"  stroke="none" fill="blue" /><polygon id="polyMid"  stroke="none" fill="lime" /><polygon id="polyTop" stroke="none" fill="red" /></g></svg>
+</div>
+Scale X:<input type=text  style="width:30px;" id=scaleXValue value="1.0" />
+Scale Y:<input type=text  style="width:30px;" id=scaleYValue value="0.5" />
+<button onClick=scalePoly()>scale</button>
+<br/>Rotate:<input type=text  style="width:30px;" id=rotateAngleValue value=15 /><button onClick=rotatePoly()>Rotate</button>
+</td>
+</tr></table>
+Name:<input type=text id=symbolNameValue size=30 /><button onClick=saveSymbol()>SAVE</button>
+<button onClick=clearPoly() >CLEAR</button>
+            <br />Native Symbol SVG Files:
+<textarea id=saveSVGValue style='font-size:120%;font-family:lucida console;width:90%;height:400px'></textarea>
+  Javascript:
+  <div id=jsCodeDiv style=overflow:auto;width:100%;text-align:left; /></div>
+
+</center>
+<script id=myScript>
+
+var Pgon=polyBot
+function stackPoly()
+{
+    if(regularRadio.checked==true)
+    	buildRegPoly()
+    if(rhombusRadio.checked==true)
+    	buildRhombus()
+    if(starRadio.checked==true)
+    	buildStarPoly()
+}
+function removePoly()
+{
+	var myPoints=Pgon.points
+	myPoints.clear()
+}
+
+function buildRegPoly()
+{
+
+     var centerX=100
+     var centerY=100
+     var vCnt=parseInt(regPolySidesValue.value)
+     var radius=parseFloat(regPolyRadiusValue.value)
+
+	var myPoints=Pgon.points
+	myPoints.clear()
+	var polyXPts      = Array(vCnt);
+	var polyYPts      = Array(vCnt);
+	var vertexAngle   = 360/vCnt;
+	//---init polygon points processor---
+	for(var v=0; v<vCnt; v++)
+	{
+		theAngle = (v*vertexAngle)*Math.PI/180;
+		polyXPts[v] = radius*Math.cos(theAngle);
+		polyYPts[v] = -radius*Math.sin(theAngle);
+	}
+	//--note points are CCW(this is important for future ref)---
+	for(var v=0;v<vCnt; v++)
+	{
+		var point=polySymbolSVG.createSVGPoint();
+		point.x=centerX+polyXPts[v]
+		point.y=centerY+polyYPts[v]
+		myPoints.appendItem(point)
+	}
+}
+
+function buildRhombus()
+{
+	var myPoints=Pgon.points
+	myPoints.clear()
+
+	var centerX=100
+	var centerY=100
+	var deg=parseFloat(rhombusAngleValue.value)
+	var sideLen=parseFloat(rhombusSideLenValue.value)
+	//---1 radian = 57.2957795 degrees
+	var iaRadian=deg/57.2957795
+
+	var cos=Math.cos(iaRadian)
+	var sin=Math.sin(iaRadian)
+	var a=sideLen*sin
+	var d=sideLen*cos
+	//---CCW points---
+	var x1=centerX
+	var y1=-a + centerY
+	var x2=-d + centerX
+	var y2=centerY
+	var x3=centerX
+	var y3=a + centerY
+	var x4=d + centerX
+	var y4=centerY
+
+
+	var point1=polySymbolSVG.createSVGPoint();
+	point1.x=x1
+	point1.y=y1
+	myPoints.appendItem(point1)
+	var point2=polySymbolSVG.createSVGPoint();
+	point2.x=x2
+	point2.y=y2
+	myPoints.appendItem(point2)
+	var point3=polySymbolSVG.createSVGPoint();
+	point3.x=x3
+	point3.y=y3
+	myPoints.appendItem(point3)
+	var point4=polySymbolSVG.createSVGPoint();
+	point4.x=x4
+	point4.y=y4
+	myPoints.appendItem(point4)
+
+}
+
+function buildStarPoly()
+{
+    var centerX=100
+    var centerY=100
+
+	var myPoints=Pgon.points
+	myPoints.clear()
+
+	var starPoints=parseInt(starPointsValue.value)
+	var theta=Math.PI*2/starPoints;
+	var r=parseFloat(starRadiusValue.value)
+	//---ccw points---
+	for(i=0;i<starPoints;i++)
+	{
+		var k=i+1;
+		var sineAngle=Math.sin(theta*k);
+		var cosineAngle=Math.cos(theta*k);
+		var x1=r/2*sineAngle+centerX;
+		var y1=r/2*cosineAngle+centerY;
+		//----add alpha line, end star pnts----
+		var sineAngleAlpha=Math.sin(theta*k+.5*theta);
+		var cosineAngleAlpha=Math.cos(theta*k+.5*theta);
+		var x2=r*sineAngleAlpha+centerX;
+		var y2=r*cosineAngleAlpha+centerY;
+
+		var point1=polySymbolSVG.createSVGPoint();
+		point1.x=x1
+		point1.y=y1
+		myPoints.appendItem(point1)
+		var point2=polySymbolSVG.createSVGPoint();
+		point2.x=x2
+		point2.y=y2
+		myPoints.appendItem(point2)
+	}
+
+
+}
+function rotatePoly()
+{
+ Pgon.setAttribute("transform","rotate("+rotateAngleValue.value+" 100 100)" )
+ computePolyPoints()
+}
+function scalePoly()
+{
+	var scaleX=parseFloat(scaleXValue.value)
+	var scaleY=parseFloat(scaleYValue.value)
+
+	var CTM=Pgon.getCTM()
+	var scaledCTM=CTM.scaleNonUniform(scaleX,scaleY)
+
+	var transObjAnim=Pgon.transform
+	var transObj=transObjAnim.baseVal
+	myMatrixTransform = polySymbolSVG.createSVGTransformFromMatrix(scaledCTM)
+	transObj.appendItem(myMatrixTransform)
+
+	computePolyPoints()
+
+	var bb=Pgon.getBBox()
+	var bbw=bb.width
+	var bbh=bb.height
+	var cx=bb.x+.5*bb.width
+	var cy=bb.y+.5*bb.height
+	var transX=100 -cx
+	var transY=100-cy
+	//---move back to center---
+	Pgon.setAttribute("transform","translate("+transX+" "+transY+")" )
+	computePolyPoints()
+
+}
+
+function saveSymbol()
+{
+	var polyG=polySymbolSVG.firstChild
+
+	var bb=polyG.getBBox()
+	var bbw=bb.width
+	var bbh=bb.height
+	var cx=bb.x+.5*bb.width
+	var cy=bb.y+.5*bb.height
+
+	var requestSize=1
+	if(bbw>=bbh)
+	var scale=requestSize/bbw
+	else
+	var scale=requestSize/bbh
+
+	if(symbolNameValue.value!="")
+	polyG.setAttribute("name",symbolNameValue.value)
+
+	polyG.setAttribute("transform", "translate("+(-cx*scale)+" "+(-cy*scale)+")scale("+scale+")" )
+
+	if(polyBot.getAttribute("points"))
+	{
+		Pgon=polyBot
+		computePolyPoints()
+		polyBot.setAttribute("fill","black")
+		polyBot.id=""
+	}
+	else
+	{
+		polyG.removeChild(polyBot)
+	}
+
+	if(polyMid.getAttribute("points"))
+	{
+		Pgon=polyMid
+		computePolyPoints()
+		polyMid.setAttribute("fill","White")
+		polyMid.id=""
+	}
+	else
+	{
+		polyG.removeChild(polyMid)
+	}
+	if(polyTop.getAttribute("points"))
+	{
+		Pgon=polyTop
+		computePolyPoints()
+		polyTop.setAttribute("fill","black")
+		polyTop.id=""
+	}
+	else
+	{
+		polyG.removeChild(polyTop)
+	}
+
+	polyG.setAttribute("transform","")
+	polyG.removeAttribute("transform")
+
+	var gmtMS=new Date().getTime()
+	polyG.id="nativeSymbol"+gmtMS
+
+	saveSVGValue.value+=svgDiv.innerHTML+"\n"
+	clearPoly()
+}
+//---changes all transformed points to screen points---
+function computePolyPoints()
+{
+	var sCTM = Pgon.getCTM()
+	var pointsList = Pgon.points;
+	var n = pointsList.numberOfItems;
+	for(var m=0;m<n;m++)
+	{
+		var mySVGPoint = polySymbolSVG.createSVGPoint();
+		mySVGPoint.x = pointsList.getItem(m).x
+		mySVGPoint.y = pointsList.getItem(m).y
+		mySVGPointTrans = mySVGPoint.matrixTransform(sCTM)
+		pointsList.getItem(m).x=mySVGPointTrans.x
+		pointsList.getItem(m).y=mySVGPointTrans.y
+	}
+	//---force removal of transform--
+	Pgon.setAttribute("transform","")
+	Pgon.removeAttribute("transform")
+}
+
+var NS="http://www.w3.org/2000/svg"
+function clearPoly()
+{
+	svgDiv.innerHTML=""
+	var svg=document.createElementNS(NS,"svg")
+	svg.id="polySymbolSVG"
+	svg.setAttribute("width","100%")
+	svg.setAttribute("height","100%")
+	svgDiv.appendChild(svg)
+
+	var g=document.createElementNS(NS,"g")
+	g.id="polySymbolG"
+	svg.appendChild(g)
+	var polyBot=document.createElementNS(NS,"polygon")
+	polyBot.setAttribute("fill","blue")
+	polyBot.setAttribute("stroke","none")
+	polyBot.setAttribute("id","polyBot")
+	g.appendChild(polyBot)
+
+	var poly=document.createElementNS(NS,"polygon")
+	poly.setAttribute("fill","lime")
+	poly.setAttribute("stroke","none")
+	poly.setAttribute("id","polyMid")
+	g.appendChild(poly)
+
+	var poly=document.createElementNS(NS,"polygon")
+	poly.setAttribute("fill","red")
+	poly.setAttribute("stroke","none")
+	poly.setAttribute("id","polyTop")
+	g.appendChild(poly)
+
+	Pgon=polyBot
+	regularRadio.checked=true
+	symbolNameValue.value=""
+}
+
+
+</script>
+<script>
+document.addEventListener("onload",init(),false)
+
+function init()
+{
+	showSourceJS()
+}
+
+</script>
+</body>
+
+</html>

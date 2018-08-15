@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <title>Random Points Inside Polygon</title>
+  <script type="text/javascript" src="highlight.pack.js"></script>
+  <script type="text/javascript" src="highlightCode.js"></script>
+  <link href='highlight.css' rel='stylesheet' />
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+</head>
+<body style='padding:10px;font-family:arial;background:#f0f8ff'>
+<center>
+<h4>Random Points Inside Polygon</h4>
+<div style='width:90%;background-color:gainsboro;text-align:justify;padding:10px;border-radius:6px;'>
+Create a group of points that fall within a concave or convex polygon.
+</div>
+<table><tr>
+<td>
+<div style="padding:10px;width:400px;text-align:justify">
+
+Random Points:<input type="text" style=width:40px id=randomPointsValue value=12 />
+<button onClick=go()>go</button>
+</div>
+</td>
+<td>
+<div id="svgDiv" style='background-color:lightgreen;width:400px;height:400px;'>
+<svg id=mySVG width=400 height=400>
+<polygon id="myPolygon" fill="yellow" stroke="blue" stroke-width="3" points="380,80 200,10 40, 80 100,320 300,350" />
+<g id=pointsG />
+</svg>
+</div>
+
+</td>
+</tr></table>
+  <br />SVG Source:
+  <div id=svgSourceDiv style=overflow:auto;width:100%;height:1px;text-align:left; /></div>
+  Javascript:
+  <div id=jsCodeDiv style=overflow:auto;width:100%;height:300px;text-align:left; /></div><p></p>
+</center>
+<script id=myScript>
+function go()
+{
+    for(var k=pointsG.childNodes.length-1;k>=0;k--)
+        pointsG.removeChild(pointsG.childNodes.item(k))
+
+    var randPoints=+randomPointsValue.value
+    var bb=myPolygon.getBBox()
+    var bbx1=bb.x
+    var bby1=bb.y
+    var bbx2=bb.x+bb.width
+    var bby2=bb.y+bb.height
+    var pgonPoints=myPolygon.points
+    verts=[]
+    for(var k=0;k<pgonPoints.length;k++)
+        verts.push([pgonPoints[k].x,pgonPoints[k].y])
+
+    var foundPoints=0
+    for(var k=0;k<9999;k++)
+    {
+        var randX=Math.floor(Math.random() * bbx2) + bbx1
+        var randY=Math.floor(Math.random() * bby2) + bby1
+
+        var point=[randX,randY]
+        var  isInside=pointInPolygon(point,verts)
+        if(isInside)
+        {
+            showPoint(point)
+            foundPoints++
+            if(foundPoints==randPoints)
+            break
+        }
+
+    }
+    showSourceSVG()
+}
+var NS="http://www.w3.org/2000/svg"
+function showPoint(point)
+{
+    var circle=document.createElementNS(NS,"circle")
+    circle.setAttribute("fill","lime")
+    circle.setAttribute("cx",point[0])
+    circle.setAttribute("cy",point[1])
+    circle.setAttribute("r","5")
+    circle.setAttribute("stroke","black")
+    circle.setAttribute("stroke-width","1")
+    pointsG.appendChild(circle)
+}
+
+
+  // from https://github.com/substack/point-in-polygon
+      pointInPolygon = function (point, verts) {
+        // ray-casting algorithm based on
+        // http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html
+        var xi, xj, i, intersect,
+            x = point[0],
+            y = point[1],
+            inside = false;
+        for (var i = 0, j = verts.length - 1; i < verts.length; j = i++) {
+          xi = verts[i][0],
+          yi = verts[i][1],
+          xj = verts[j][0],
+          yj = verts[j][1],
+          intersect = ((yi > y) != (yj > y))
+              && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+          if (intersect) inside = !inside;
+        }
+        return inside;
+      }
+
+
+</script>
+<script>
+document.addEventListener("onload",init(),false)
+function init()
+{
+    go()
+   	showSourceSVG()
+	showSourceJS()
+
+}
+
+
+</script>
+
+</body>
+
+</html>

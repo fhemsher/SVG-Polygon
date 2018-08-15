@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <title>C0600b - Line Intersect Polygon</title>
+  <script type="text/javascript" src="highlight.pack.js"></script>
+  <script type="text/javascript" src="highlightCode.js"></script>
+  <link href='highlight.css' rel='stylesheet' />
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+</head>
+<body style='padding:0px;font-family:arial;background:#f0f8ff'>
+<center>
+<h4>Line Intersect Polygon</h4>
+<div style='width:90%;background-color:gainsboro;text-align:justify;padding:10px;border-radius:10px;'>
+Determine where/if a line intersects the side(s) of a polygon. Uses <b>vectors analysis</b>
+</div>
+<div id="svgDiv" style='width:400px;height:400px;background-color:lightgreen;'>
+<svg id="mySVG" width="400" height="400">
+<polygon id="myPolygon" fill="yellow" stroke="blue" stroke-width="3" points="380,80 200,10 40,80 100,320 300,350" />
+<line id="LineA" x1="20" y1="20" x2="380" y2="380" stroke-width="3" stroke="black"/>
+<circle id="circle1" r="8" fill="lime" stroke-width="1" stroke="black" />
+<circle id="circle2" r="8" fill="lime" stroke-width="1" stroke="black" />
+</svg>
+</div>
+ <br /><button onclick=getPolygonIntersect()>Compute Intersects</button>
+ <br />  SVG Source:
+  <div id=svgSourceDiv style=overflow:auto;width:100%;height:1px;text-align:left; /></div>
+  Javascript:
+  <div id=jsCodeDiv style=overflow:auto;width:100%;text-align:left; /></div>
+
+</center>
+<script id=myScript>
+
+function getPolygonIntersect()
+{
+	var aX1=parseFloat(LineA.getAttribute("x1"))
+	var aY1=parseFloat(LineA.getAttribute("y1"))
+	var aX2=parseFloat(LineA.getAttribute("x2"))
+	var aY2=parseFloat(LineA.getAttribute("y2"))
+	var pointList=myPolygon.points
+	var n=pointList.numberOfItems
+	var circleCnt=0
+	for(var k=0;k<n;k++) //--each side of polygon---
+	{
+		var bX1=pointList.getItem(k).x
+		var bY1=pointList.getItem(k).y
+
+		if(k<n-1)
+		{
+			var bX2=pointList.getItem(k+1).x
+			var bY2=pointList.getItem(k+1).y
+		}
+		else
+		{
+			var bX2=pointList.getItem(0).x
+			var bY2=pointList.getItem(0).y
+		}
+		//---return false or intersect point---
+		var xy=lineSegIntersect(aX1,aY1,aX2,aY2,bX1,bY1,bX2,bY2)
+		if(xy)
+		{
+			circleCnt++
+			var circle=document.getElementById("circle"+circleCnt)
+			circle.setAttribute("cx",xy[0])
+			circle.setAttribute("cy",xy[1])
+		}
+	}
+	showSourceSVG()
+}
+//---compare two lines: A.B---
+function lineSegIntersect(aX1,aY1,aX2,aY2,bX1,bY1,bX2,bY2)
+{
+	//---compute vectors Va, Vb--------
+	var Va=( (bX2-bX1)*(aY1-bY1) - (bY2-bY1)*(aX1-bX1) )/ ( (bY2-bY1)*(aX2-aX1) - (bX2-bX1)*(aY2-aY1) )
+	var Vb=( (aX2-aX1)*(aY1-bY1) - (aY2-aY1)*(aX1-bX1) )/( (bY2-bY1)*(aX2-aX1) - (bX2-bX1)*(aY2-aY1) )
+
+	if(Va>0 && Va<1 && Vb>0 && Vb<1)
+	{
+	//---intersect true, show point---
+		var ma=(aY2-aY1)/(aX2-aX1)
+		var mb=(bY2-bY1)/(bX2-bX1)
+		if(aX2!=aX1&&bX2!=bX1) //---!vertical line---
+		{
+			var x=(aX1*ma-aY1-bX1*mb+bY1)/(ma-mb)
+			var y=ma*(x-aX1)+aY1
+		}
+		else if(aX2==aX1)
+		{
+			var x=aX1
+			var y=mb*(x-bX1)+bY1
+		}
+		else if(bX2==bX1)
+		{
+			var x=bX1
+			var y=ma*(x-aX1)+aY1
+		}
+
+		return [x,y]
+    }
+	else
+	return false
+}
+
+</script>
+
+
+<script>
+document.addEventListener("onload",init(),false)
+
+function init()
+{
+showSourceSVG()
+showSourceJS()
+}
+</script>
+</body>
+
+</html>

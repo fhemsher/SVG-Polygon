@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <title>Create Polygon From Lines</title>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+</head>
+<body style='padding:10px;font-family:arial'>
+<center>
+<h4>Create Polygon From Lines</h4>
+<div style='width:90%;background-color:gainsboro;text-align:justify;padding:10px;border-radius:6px;'>
+A group of independent lines are connected to form a shape. Create a polygon that matches the shape.
+</div>
+<table><tr>
+<td>
+<div style="padding:10px;width:400px;text-align:justify">
+
+<b>Scenerio:</b><br />
+The shape is shown dashed:
+Lines have been randomly placed and are not contiguous.<br>
+We must arrange the points so a polygon can be drawn that matches the shape, i.e, the points must be sequential.
+</div>
+</td>
+<td>
+<div id="svgDiv" style='background-color:lightgreen;width:400px;height:400px;'>
+<svg id="mySVG" width="400" height="400" overflow="visible">
+<g id=lineG fill="none" stroke=black stroke-width=1 stroke-dasharray="4 4" />
+<polygon id=myPolygon stroke='blue' fill='none' stroke-width='3' />
+</svg>
+</div>
+</td>
+</tr></table>
+ <script>
+var Lines=[]  //---[x1,y1,x2,y2]---
+Lines[0]=[170, 148, 140, 200]
+Lines[1]=[140, 200, 170, 251]
+Lines[2]=[230, 251, 260, 200]
+Lines[3]=[170, 148, 200, 96]
+Lines[4]=[230, 251, 200, 303]
+Lines[5]=[200, 303, 170, 251]
+Lines[6]=[281, 118, 251, 66]
+Lines[7]=[251, 66, 200, 96]
+Lines[8]=[281, 118, 311, 170]
+Lines[9]=[311, 170, 260, 200]
+
+var NS="http://www.w3.org/2000/svg"
+//---onLoad---
+function placeLines()
+{
+    for(var k=0;k<Lines.length;k++)
+    {
+       var line=document.createElementNS(NS,"line")
+       line.setAttribute("x1",Lines[k][0])
+       line.setAttribute("y1",Lines[k][1])
+       line.setAttribute("x2",Lines[k][2])
+       line.setAttribute("y2",Lines[k][3])
+       lineG.appendChild(line)
+    }
+}
+
+document.addEventListener("onload",placeLines(),false)
+
+</script>
+</body>
+</html>

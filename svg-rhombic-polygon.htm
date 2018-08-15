@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <title>Create &amp; Size A Rhombic Polygon</title>
+
+
+  <script type="text/javascript" src="highlight.pack.js"></script>
+  <script type="text/javascript" src="highlightCode.js"></script>
+  <link href='highlight.css' rel='stylesheet' />
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+</head>
+<body style='padding:0px;font-family:arial;background:#f0f8ff'>
+<center>
+<h4>Create &amp; Size A Rhombic Polygon</h4>
+<div style='width:90%;background-color:gainsboro;text-align:justify;padding:10px;border-radius:6px;'>
+This will create a rhombus for use in your other applications.
+Provide an initial <b>Side Length</b>, its starting  <b>center point</b>, and <b>interior angle</b>. Also, rotate by 45 deg, and set its size.
+The scale transform is used to size the rhombus. Also the transform is then removed. centering the rhombus at (0,0). This allows the rhombus to be translated to its desired location in your application.
+</div>
+<table><tr>
+
+<td align=right>
+Center X:<input type=text size=1 id=centerXValue value=200 /><br />
+Center Y:<input type=text size=1 id=centerYValue value=200 /><br />
+
+Side Length:<input type=text size=1 id=sideLengthValue value=200 /><br />
+Interior Angle:<select id=interiorAngleSelect>
+<option>15</option>
+<option selected>30</option>
+<option>45</option>
+<option>60</option>
+</select><br />
+<button onClick=buildRhombus()>Build Rhombus</button>
+</td>
+<td>
+<div id=svgDiv style='background-color:lightgreen;width:400px;height:400px;'>
+<svg id="mySVG" width="400" height="400">
+<polygon id="rhombus" stroke="none"  fill="blue" />
+</svg>
+</div>
+<center>
+rotate<input type=text id=rotateAngle value=45 size=1 />deg++:<button onClick=rotate()>rotate</button>
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+Size:
+<select id=sizeSelect onChange=sizeSelected()>
+<option></option>
+<option>1</option>
+<option>5</option>
+<option>10</option>
+<option>15</option>
+<option>20</option>
+<option>25</option>
+<option>30</option>
+<option>40</option>
+<option>50</option>
+<option>100</option>
+</select>:px</center>
+
+</td></tr></table><br />
+Width=<input type=text onfocus=blur() id=rhombWidthValue size=3 />px
+&nbsp;&nbsp;&nbsp;Height=<input type=text onfocus=blur() id=rhombHeightValue size=3 />px
+
+<br />
+<br />
+Rhombus Polygon: centered at(0,0)<br />
+  SVG Source:
+  <div id=svgSourceDiv style=overflow:auto;width:100%;height:1px;text-align:left; /></div>
+  Javascript:
+  <div id=jsCodeDiv style=overflow:auto;width:100%;text-align:left; /></div>
+</center>
+<script id=myScript>
+document.addEventListener("onload",init(),false)
+
+function init()
+{
+
+    buildRhombus()
+
+    showSourceJS()
+}
+function buildRhombus()
+{
+     var centerX=parseFloat(centerXValue.value)
+     var centerY=parseFloat(centerYValue.value)
+     var sideLen=parseFloat(sideLengthValue.value)
+     var deg=parseFloat(interiorAngleSelect.options[interiorAngleSelect.selectedIndex].value)
+
+	//---1 radian = 57.2957795 degrees
+	var iaRadian=deg/57.2957795
+
+	var cos=Math.cos(iaRadian)
+	var sin=Math.sin(iaRadian)
+	var a=sideLen*sin
+	var d=sideLen*cos
+	//---CCW points---
+	var x1=centerX
+	var y1=-a + centerY
+	var x2=-d + centerX
+	var y2=centerY
+	var x3=centerX
+	var y3=a + centerY
+	var x4=d + centerX
+	var y4=centerY
+
+	var myPoints=rhombus.points
+	myPoints.clear()
+	var point1=mySVG.createSVGPoint();
+	point1.x=x1
+	point1.y=y1
+	myPoints.appendItem(point1)
+	var point2=mySVG.createSVGPoint();
+	point2.x=x2
+	point2.y=y2
+	myPoints.appendItem(point2)
+	var point3=mySVG.createSVGPoint();
+	point3.x=x3
+	point3.y=y3
+	myPoints.appendItem(point3)
+	var point4=mySVG.createSVGPoint();
+	point4.x=x4
+	point4.y=y4
+	myPoints.appendItem(point4)
+
+	//--transform center(0,0) and get
+	rhombus.setAttribute("transform","translate("+(-centerX)+" "+(-centerY)+")")
+	computePolyPoints(rhombus) //--remove transform---
+	rhombus.setAttribute("transform","translate("+(centerX)+" "+(centerY)+")")
+
+	showSourceSVG()
+
+	var bb=rhombus.getBBox()
+	rhombWidthValue.value=bb.width
+	rhombHeightValue.value=bb.height
+}
+
+function rotate()
+{
+	var deg=parseFloat(rotateAngle.value)
+	var transformRequestObj=mySVG.createSVGTransform()
+	var animTransformList=rhombus.transform
+	var transformList=animTransformList.baseVal
+
+	var centerX=parseFloat(centerXValue.value)
+	var centerY=parseFloat(centerYValue.value)
+
+	transformRequestObj.setTranslate(-centerX,-centerY)
+	transformList.appendItem(transformRequestObj)
+	transformList.consolidate()
+
+	transformRequestObj.setRotate(deg,0,0)
+	transformList.appendItem(transformRequestObj)
+	transformList.consolidate()
+
+	computePolyPoints(rhombus) //--remove transform---
+	rhombus.setAttribute("transform","translate("+(centerX)+" "+(centerY)+")")
+
+	showSourceSVG()
+
+	var bb=rhombus.getBBox()
+	rhombWidthValue.value=bb.width
+	rhombHeightValue.value=bb.height
+}
+//--select onchange--
+function sizeSelected()
+{
+	var requestSize=parseFloat(sizeSelect.options[sizeSelect.selectedIndex].text)
+
+	var bb=rhombus.getBBox()
+	var bbw=bb.width
+	var bbh=bb.height
+	var cx=bb.x+.5*bb.width
+	var cy=bb.y+.5*bb.height
+
+	if(bbw>=bbh)
+	var scale=requestSize/bbw
+	else
+	var scale=requestSize/bbh
+
+	var centerX=parseFloat(centerXValue.value)
+	var centerY=parseFloat(centerYValue.value)
+
+	var transformRequestObj=mySVG.createSVGTransform()
+	var animTransformList=rhombus.transform
+	var transformList=animTransformList.baseVal
+
+	transformRequestObj.setTranslate(-centerX,-centerY)
+	transformList.appendItem(transformRequestObj)
+	transformList.consolidate()
+
+	transformRequestObj.setScale(scale,scale)
+	transformList.appendItem(transformRequestObj)
+	transformList.consolidate()
+
+	computePolyPoints(rhombus) //--remove transform---
+	rhombus.setAttribute("transform","translate("+(centerX)+" "+(centerY)+")")
+
+	showSourceSVG()
+
+	var bb=rhombus.getBBox()
+	rhombWidthValue.value=bb.width
+	rhombHeightValue.value=bb.height
+}
+
+//---changes all transformed points to screen points---
+function computePolyPoints(Pgon)
+{
+	var sCTM = Pgon.getCTM()
+	var pointsList = Pgon.points;
+	var n = pointsList.numberOfItems;
+	for(var m=0;m<n;m++)
+	{
+		var mySVGPoint = mySVG.createSVGPoint();
+		mySVGPoint.x = pointsList.getItem(m).x
+		mySVGPoint.y = pointsList.getItem(m).y
+		mySVGPointTrans = mySVGPoint.matrixTransform(sCTM)
+		pointsList.getItem(m).x=mySVGPointTrans.x
+		pointsList.getItem(m).y=mySVGPointTrans.y
+	}
+	//---force removal of transform--
+	Pgon.setAttribute("transform","")
+	Pgon.removeAttribute("transform")
+}
+</script>
+</body>
+
+</html>

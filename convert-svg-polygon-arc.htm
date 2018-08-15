@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <title>Ce - Convert Regular Polygon To Arcs</title>
+
+  <script type="text/javascript" src="highlight.pack.js"></script>
+  <script type="text/javascript" src="highlightCode.js"></script>
+  <link href='highlight.css' rel='stylesheet' />
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+</head>
+<body style='padding:0px;font-family:arial;background:#f0f8ff'>
+<center>
+<h4>Convert Regular Polygon To Arcs</h4>
+<div style='width:90%;background-color:gainsboro;text-align:justify;padding:10px;border-radius:6px;'>
+Rather than creating straight lines for each side, draw them as curved lines.
+This example draws an arc, given 2 points and a radius, for each side of the polygon.
+The direction of the arcs can be either outward or inward.
+</div>
+<table><tr>
+
+<td>
+<div id=svgDiv style='width:400px;height:400px;background-color:lightgreen'>
+<svg id="mySVG" width="400" height="400">
+<polygon id=myPolygon fill="none" stroke="black" stroke-width=".5" stroke-dasharray="5 5" />
+</svg>
+</div>
+</td>
+</tr>
+</table>
+<div style='width:50%;padding:5px;background-color:lightgreen'>
+ Polygon Radius:<input type=text size=1 id=radiusPolyValue value=150 />
+ &nbsp; &nbsp; &nbsp; Arc Direction
+ <input type=radio id=outRadio name=inOutRadio checked />:out
+&nbsp;in:<input type=radio id=inRadio name=inOutRadio />
+&nbsp; &nbsp; *Arc Radius:<input type=text size=1 id=radiusArcValue value=280 />
+ Sides:<select id=sideSelect>
+<option>3</option>
+<option>4</option>
+<option>5</option>
+<option selected>6</option>
+<option>7</option>
+<option>8</option>
+<option>9</option>
+<option>10</option>
+ </select>
+<br /><button onClick=go()>Go</button>
+Side Length:<input onfocus=blur() type=text size=12 id=sideLengthValue  />
+</div>
+
+*Arc radius must be greater than 1/2 the side length:( <span id=halfSideLenSpan></span>)
+
+<br />  SVG Source:
+  <div id=svgSourceDiv style=overflow:auto;width:100%;height:1px;text-align:left; /></div>
+  Javascript:
+  <div id=jsCodeDiv style=overflow:auto;width:100%;text-align:left; /></div>
+</center>
+<script id=myScript>
+var Rp //--polygon radius---
+var Ra //---arc radius less that polygon radius
+var NS="http://www.w3.org/2000/svg"
+//---init / button---
+function go()
+{
+	var elems=mySVG.childNodes
+	var n=elems.length
+	for(var k=n-1;k>=0;k--)
+	{
+		var elemNode=elems.item(k).nodeName
+		if(elemNode=="path")
+			mySVG.removeChild(elems.item(k))
+	}
+	myPolygon.setAttribute("points","")
+
+	Rp=parseFloat(radiusPolyValue.value)
+	Ra=parseFloat(radiusArcValue.value)
+	var sides=sideSelect.selectedIndex+3
+	regPolyCircleRad(sides,Rp,200,200)
+	buildSideArcs()
+}
+//----create regular polygon based on a radius length:circumradius (radius of a circle passing through all points)--
+function regPolyCircleRad(vCnt,radius,centerX,centerY)
+{
+	var myPoints=myPolygon.points
+	var polyXPts      = Array(vCnt);
+	var polyYPts      = Array(vCnt);
+	var vertexAngle   = 360/vCnt;
+	//---init polygon points processor---
+	for(var v=0; v<vCnt; v++)
+	{
+		theAngle = (v*vertexAngle)*Math.PI/180;
+		polyXPts[v] = radius*Math.cos(theAngle);
+		polyYPts[v] = -radius*Math.sin(theAngle);
+	}
+	//--note points are CCW(this is important for future ref)---
+	for(var v=0;v<vCnt; v++)
+	{
+		var point=mySVG.createSVGPoint();
+		point.x=centerX+polyXPts[v]
+		point.y=centerY+polyYPts[v]
+		myPoints.appendItem(point)
+	}
+}
+
+function buildSideArcs()
+{
+	var points=myPolygon.points
+	var n=points.numberOfItems
+	for(var k=0;k<n;k++)
+	{
+		var pnt1=points.getItem(k)
+		var x1=pnt1.x
+		var y1=pnt1.y
+		if(k<n-1)
+			var pnt2=points.getItem(k+1)
+		else
+			var pnt2=points.getItem(0)
+		var x2=pnt2.x
+		var y2=pnt2.y
+
+		//---remove equality---
+		if(x1==x2)
+			x2+=.0001
+		if(y1==y2)
+			y2+=.0001
+
+		//---radius must be greater tthan 1/2 the line length--
+		var lineLength=Math.sqrt( (x2-x1)*(x2-x1)+(y2-y1)*(y2-y1) )
+		if(k==0)
+		{
+			sideLengthValue.value=lineLength
+			halfSideLenSpan.innerHTML=lineLength/2
+		}
+		if(Ra<=lineLength*.5)
+		{
+			alert("side length = "+lineLength+" arc radius must be greater than 1/2 the side length")
+			break;
+		}
+		else
+		   if(outRadio.checked==true) //--default points CCW--
+		   		getCenter(x1,y1,x2,y2,Ra)
+		   else
+            	getCenter(x2,y2,x1,y1,Ra) //---arcs are arranged inward---
+	}
+    showSourceSVG()
+}
+
+//---each pair of points share 2 circles, choose exterior edge circle---
+function getCenter(x1,y1,x2,y2,radius)
+{
+	var center_a,center_b;
+	var twoabx1 = -2 * x1;
+	var twoaby1 = -2 * y1;
+	var twoabx2 = -2 * x2;
+	var twoaby2 = -2 * y2;
+	var x1square = x1 * x1;
+	var y1square = y1 * y1;
+	var x2square = x2 * x2;
+	var y2square = y2 * y2;
+	var radiussquare = radius * radius;
+	var x1_twoab_x2 = twoabx1 + (-1 * twoabx2);
+	var y1_twoab_y2 = twoaby1 + (-1 * twoaby2);
+	var x1_square_x2 = x1square + (-1 * x2square);
+	var y1_square_y2 = y1square + (-1 * y2square);
+	var a_square;
+	var a;
+	var constant;
+	var b_square_coefficient = ( y1_twoab_y2 * y1_twoab_y2 );
+	var temp;
+
+	if( y1_twoab_y2 <  0 )
+	{
+		//---FORMING QUADRATIC EQUATION---
+		a_square = ( b_square_coefficient ) + ( x1_twoab_x2 * x1_twoab_x2 );
+		temp = ( x1_square_x2 + y1_square_y2 ) - ( y1 * -1 * y1_twoab_y2 );
+		a = ( b_square_coefficient * twoabx1 ) + ( 2 * x1_twoab_x2 * temp );
+		constant = ( b_square_coefficient * x1square ) - ( b_square_coefficient * radiussquare ) + ( temp * temp );
+		center_a = ( ( -1 * a ) + Math.sqrt( ( a * a ) - ( 4 * a_square * constant ) ) ) / ( 2 * a_square );
+		center_b = ( ( x1_twoab_x2 * center_a ) + ( x1_square_x2 + y1_square_y2 ) ) / ( -1 * y1_twoab_y2 );
+	}
+	else
+	{
+		//---FORMING QUADRATIC EQUATION---
+		a_square = ( b_square_coefficient ) + ( x1_twoab_x2 * x1_twoab_x2 );
+		temp = ( -1 * ( x1_square_x2 + y1_square_y2 )) - ( y1 * y1_twoab_y2 );
+		a = ( b_square_coefficient * twoabx1 ) + ( 2 * -1 * x1_twoab_x2 * temp );
+		constant = ( b_square_coefficient * x1square ) - ( b_square_coefficient * radiussquare ) + ( temp * temp );
+		center_a = ( ( -1 * a ) - Math.sqrt( ( a * a ) - ( 4 * a_square * constant ) ) ) / ( 2 * a_square );
+		center_b = ( ( -1 * ( x1_square_x2 + y1_square_y2 ) ) + ( -1 * x1_twoab_x2 * center_a ) ) / ( y1_twoab_y2 );
+	}
+
+	var cx=center_a
+	var cy=center_b
+	function polarToCartesian(centerX, centerY,radius, angleInDegrees)
+	{
+		var angleInRadians = (angleInDegrees) * Math.PI / 180.0;
+
+		return {
+		x: centerX + (radius * Math.cos(angleInRadians)),
+		y: centerY + (radius * Math.sin(angleInRadians))
+		};
+	}
+	var startAngle = 180/Math.PI*Math.atan2(y1-cy, x1-cx);
+	var endAngle =  180/Math.PI*Math.atan2(y2-cy, x2-cx);
+
+	StartPnt = polarToCartesian(cx, cy, radius, startAngle);
+	EndPnt = polarToCartesian(cx, cy,  radius, endAngle);
+	ArcSweep = endAngle - startAngle <= 180 ? "0" : "1";
+
+	var d = [
+	"M", StartPnt.x, StartPnt.y,
+	"A", radius, radius, 0, ArcSweep, 0, EndPnt.x, EndPnt.y
+	].join(" ");
+
+  	if(d.indexOf("NaN")==-1) //---if leg length < 2*radius---
+	{
+		var arcPath=document.createElementNS(NS,"path")
+		arcPath.setAttribute("fill","yellow")
+		arcPath.setAttribute("stroke","blue")
+		arcPath.setAttribute("stroke-width",2)
+
+		arcPath.setAttribute("d",d)
+		mySVG.appendChild(arcPath)
+	}
+}
+</script>
+<script>
+//--onload---
+function init()
+{
+
+	go()
+
+showSourceJS()
+
+}
+document.addEventListener("onload",init(),false)
+</script>
+</script>
+
+</body>
+
+</html>

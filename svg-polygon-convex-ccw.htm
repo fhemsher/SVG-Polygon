@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <title>C060a - Polygons - Fix for Convex/CCW</title>
+<script>
+  <script type="text/javascript" src="highlight.pack.js"></script>
+  <script type="text/javascript" src="highlightCode.js"></script>
+  <link href='highlight.css' rel='stylesheet' />
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+</head>
+<body style='padding:10px;font-family:arial;background:#f0f8ff'>
+<center>
+<h4>Polygons - Fix for Convex/CCW</h4>
+<div style='width:90%;background-color:gainsboro;text-align:justify;padding:10px;border-radius:6px;'>
+Test an existing svg polygon and arrange its points CCW, and remove any concave points.
+</div>
+<div id="svgDiv" style='background-color:lightblue;width:400px;height:400px;'>
+<svg id="mySVG" width="400" height="400">
+<polygon id="myPolygon" fill="yellow" stroke="blue" stroke-width="3"   points="300,350 100,320 40,80 150,150 200,10 380,80"  />
+</svg>
+</div>
+<button onClick=fixPolygon(myPolygon)>Fix Polygon</button>
+  <br />  SVG Source:
+  <div id=svgSourceDiv style=overflow:auto;width:100%;height:1px;text-align:left; /></div>
+  Javascript:
+  <div id=jsCodeDiv style=overflow:auto;width:100%;text-align:left; /></div>
+
+</center>
+<script id=myScript>
+/*
+	Existing svg polygon
+	Remove concave points and/or arrange points CCW
+*/
+function fixPolygon(myPolygon)
+{
+	function min(a, fn)
+	{
+		if (!a.length)
+		{
+			return -1;
+		}
+
+		var i = 0;
+		for (var j = 1; j < a.length; j++)
+		{
+			if (fn(a[i], a[j]) < 0)
+			i = j;
+		}
+		return i;
+	}
+
+	function ccw(p1, p2, p3)
+	{
+		return (p2[0] - p1[0]) * (p3[1] - p1[1]) - (p2[1] - p1[1]) * (p3[0] - p1[0]);
+	}
+
+	//--- place points in an array---
+	var points=[]
+	var pointsList=myPolygon.points
+	var j=pointsList.numberOfItems
+	for(var k=0;k<j;k++)
+	{
+		var pt=pointsList.getItem(k)
+		points.push([pt.x,pt.y])
+	}
+
+	var n = points.length;
+
+	//--- Find the point with the lowest y coordinate (breaking ties by looking at the x coordinate)---
+	var i = min(points, function(a, b) { return a[1] == b[1] ? b[0] - a[0] : b[1] - a[1] });
+
+	//--- Take it out of the array---
+	var p = points[i];
+	points[i] = null;
+
+	//--- Put an extra entry in the array---
+	points.push(null);
+
+	//--- Sort the points by the angle that the line from p to the point makes with the x axis---
+	points.sort(function(a, b)
+	{
+		return !a ? -1 : (!b ? 1 : (a[0] - p[0]) / (a[1] - p[1]) - (b[0] - p[0]) / (b[1] - p[1]));
+	});
+
+	//--- Now the first two elements of points should be null---
+	//--- Place the lowest-y-coordinate point at p[1], and a sentinel value at p[0]---
+	points[0] = points[n];
+	points[1] = p;
+
+	var m = 2;
+	for (i = 3; i <= n; i++)
+	{
+		//---Look at the next point---
+		while (ccw(points[m - 1], points[m], points[i]) >= 0)
+		{
+			/*
+				 If adding the next point would make the polygon non-convex,
+				 remove the most recently added point from the convex polygon
+				 we're building up.
+			*/
+			m--;
+		}
+
+		//--- Add this point to the convex polygon ---
+		m++;
+		points[m] = points[i];
+	}
+
+	//---m=usable points for polygon---
+	var myPoints=points.slice(0,m)
+
+	myPolygon.setAttribute("points",myPoints.join())
+
+	svgSourceValue.value=svgDiv.innerHTML
+}
+</script>
+<script>
+document.addEventListener("onload",init(),false)
+function init()
+{
+showSourceSVG()
+showSourceJS()
+}
+function updateSource()
+{
+showSourceSVG()  
+
+}
+</script>
+
+</body>
+
+</html>

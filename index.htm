@@ -1,0 +1,274 @@
+<!DOCTYPE HTML>
+
+<html>
+
+<head>
+  <title>SVG-Polygon: Create &amp; Manipulate Regular Polygons</title>
+</head>
+
+<body style=font-family:arial;background:#f0f8ff onload=writeEM() >
+<table cellspacing=5 cellpadding=5 border=2 style=border-collapse:collapse; >
+<tr ><td colspan=3  ><center><b>  Create &amp; Manipulate Regular Polygons</b></center>
+Polygons are easily built and combined, making them a natural for creating SVG symbols: They can be arranged so their center point is at (0,0), being ideal in accepting transforms to fit many applications.
+Also points associated with polygons  can be computed as to intersections, and their containment.
+
+</td></tr>
+<tr >
+<td><a title="SVG Regular Polygons &amp; Transformations"  target="_blank" href="svg-polygon-transform.htm" style='cursor:pointer;color:blue'><u>  Regular Polygons &amp; Transformations</u></a></td>
+<td>
+
+
+Create regular polygon based on a radius length: circumradius (radius of a circle passing through all points).
+<center><img src="Images/Circumrradius.png" alt="" /> </center>
+
+ Transform it via <b>matrices</b>, then re-compute its transformed points. Uses polygon <b>points object</b>, <b>getCTM</b>, and <b>matrixTransform</b> </td>
+
+</tr>
+
+
+<tr >
+<td><a title="SVG Create Regular Polygon By Edge Length"  target="_blank" href="svg-polygon-edge.htm" style='cursor:pointer;color:blue'><u>  Create Regular Polygon By Edge Length</u></a></td>
+<td>Build a regular  polygon with a specific edge length.
+<center><img src="Images/edge.png" alt="" /> </center>
+
+Transform it via <b>matrices</b>, then re-compute its transformed points. Uses polygon <b>points object</b>, <b>getCTM</b>, and <b>matrixTransform</b> </td>
+
+</tr>
+
+<tr >
+<td><a title="Create &amp; Size an SVG  Rhombic Polygon"  target="_blank" href="svg-rhombic-polygon.htm" style='cursor:pointer;color:blue'><u>Create &amp; Size an SVG  Rhombic Polygon</u></a></td>
+<td>
+This will create a rhombus for use in your other applications.
+Provide an initial <b>Side Length</b>, its starting  <b>center point</b>, and <b>interior angle</b>. Also, rotate by 45 deg, and set its size.
+The scale transform is used to size the rhombus. Also the transform is then removed. centering the rhombus at (0,0). This allows the rhombus to be translated to its desired location in your application.
+</td>
+
+</tr>
+<tr>
+<td><a title="Create SVG Star Polygons"  target="_blank" href="star-radius-center.htm" style='cursor:pointer;color:blue'><u>Create SVG Star Polygons</u></a></td>
+<td>Provide a <b>radius</b>, its  <b>center point</b>, and number of <b>star points</b>.
+</td>
+</tr>
+
+<tr>
+<td><a title="Create SVG Star Polygons"  target="_blank" href="star-angle-points.htm" style='cursor:pointer;color:blue'><u>Create SVG Star-Angle Polygons</u></a></td>
+<td>Provide the star's <b>Edge</b> length, plus its <b>points @ angle</b> values.
+</td>
+</tr>
+
+<tr>
+<td><a title="Create SVG Elliptical Polygons"  target="_blank" href="create-svg-elliptical-polygon.htm" style='cursor:pointer;color:blue'><u>Create SVG Elliptical Polygons</u></a></td>
+<td>Build a regular polygon. Scale in either x or y direction, then re-compute its transformed points. Uses <b>scaleNonUniform</b>
+</td>
+
+</tr>
+
+
+
+
+
+<tr>
+<td><a title="Using An SVG Polygon Symbol"  target="_blank" href="use-svg-polygon-symbol.htm" style='cursor:pointer;color:blue'><u>Using An SVG Polygon Symbol</u></a></td>
+<td>
+A symbol has been built that includes two polygons; an 8-sided regular polygon and a 6-pointed star polygon. The symbol is a &lt;g&gt; element, containing both polygons, placed in its own &lt;svg&gt; file.
+The diameter of the symbol is 1, and its center point is (0,0). It has default fill colors of black and white. Polygons used as symbols do not have stroke colors. Note: the symbols are cloned &lt;g&gt; elements, <b>not</b> &lt;use&gt; or &lt;symbol&gt; elements.
+Each symbol clone includes a time stamp(UTC-ms), creating its unique id.
+</td>
+
+</tr>
+<tr>
+<td><a title="SVG "  target="_blank" href="svg-polygon-library.htm" style='cursor:pointer;color:blue'><u> SVG  Polygon Symbol Library</u></a></td>
+<td>This is a group of 40 symbols, containing one, two, or three polygons, sized at 1.0 with default fill colors of black and white.
+These are considered the 'native' symbols. Various applications will use them with a specified size and color(s). These are defined as the 'registered' symbols in a particular app. In this example, there are 38 colors available to each registered symbol, used to create a unique id via color numbers.
+</td>
+
+</tr>
+
+<tr>
+<td><a title="Build SVG Polygon Symbols for Library"  target="_blank" href="svg-symbol-polygon-library.htm" style='cursor:pointer;color:blue'><u>Build SVG Polygon Symbols for Library(Stack)</u></a></td>
+<td>This is a <b>tool</b> that is used to create polygon symbols for a library. It stacks 1, 2, or 3 polygons. Polygons can be adjusted via side length, radius, scale, and/or rotation.
+Each symbol is created at size=1 and centered at (0,0) in an SVG file to be saved in the 'native' symbol library.
+</td>
+
+</tr>
+
+
+<tr>
+<td id="C060"><a title="SVG Convex Polygons Counter-Clockwise Points"  target="_blank" href="svg-convex-polygon.htm" style='cursor:pointer;color:blue'><u> SVG Convex Polygons Counter-Clockwise Points</u></a></td>
+<td>A <b>convex polygon</b> (aka Convex Hull) has no angles pointing inwards. More precisely, no internal angles can be more than 180 degrees.
+Polygons should have their points arranged counter-clockwise(CCW). This will assure various computations are consistent.
+This example arranges a group of points so they are CCW, and builds the resultant polygon.
+</td>
+
+</tr>
+
+
+<tr>
+<td><a title="SVG Test Polygon As Convex"  target="_blank" href="svg-convex-polygon-test.htm" style='cursor:pointer;color:blue'><u>Test Polygon As Convex</u></a></td>
+<td>
+Determine if a polygon is convex. Uses vector algebra, and the cross product.
+</td>
+
+</tr>
+
+
+
+<tr>
+<td><a title="SVG Polygons - Fix for Convex/CCW"  target="_blank" href="svg-polygon-convex-ccw.htm" style='cursor:pointer;color:blue'><u> SVG Polygons - Fix for Convex/CCW </u></a></td>
+<td>Test an existing svg polygon and arrange its points CCW, and remove any concave points.
+</td>
+
+</tr>
+
+
+<tr>
+<td><a title="Point Inside SVG Convex Polygon"  target="_blank" href="point-inside-svg-polygon.htm" style='cursor:pointer;color:blue'><u>Point Inside SVG Convex Polygon</u></a></td>
+<td>Determine if a point is located inside of the polygon. Uses <b>Jordan Curve Theorem</b>
+</td>
+
+</tr>
+
+
+<tr>
+<td><a title="SVG Random Points Inside Polygon"  target="_blank" href="random-points-inside-polygon.htm" style='cursor:pointer;color:blue'><u>Random Points Inside Polygon</u></a></td>
+<td>
+Create a group of points that fall within a concave or convex polygon.
+</td>
+</tr>
+
+
+
+
+<tr>
+<td><a title="SVG Line Intersect SVG Polygon"  target="_blank" href="line-intersect-svg-polygon.htm" style='cursor:pointer;color:blue'><u>Line Intersect SVG Polygon</u></a></td>
+<td>Determine where/if a line intersects the sides of a polygon. Uses <b>vector analysis</b>
+</td>
+
+</tr>
+
+<tr>
+<td><a title="Intersecting SVG Polygons"  target="_blank" href="intersecting-svg-polygons.htm" style='cursor:pointer;color:blue'><u>Intersecting SVG Polygons</u></a></td>
+<td>Determine where polygons intersect. Uses <b>vectors analysis</b>
+</td>
+
+</tr>
+
+<tr>
+<td><a title="Composite Intersecting SVG Polygon"  target="_blank" href="composite-intersecting-svg-polygons.htm" style='cursor:pointer;color:blue'><u>Composite Intersecting SVG Polygon</u></a></td>
+<td>Create a composite polygon from the intersection of two polygons. Uses <b>vector analysis</b> and Point-in-polygon: <b>Jordan Curve Theorem</b>.
+</td>
+
+</tr>
+
+<tr>
+<td><a title="SVG Convex Polygons - Centroid"  target="_blank" href="svg-convex-polygon-centroid.htm" style='cursor:pointer;color:blue'><u> SVG Convex Polygons - Centroid </u></a></td>
+<td>Compute the center of gravity(centroid) of a convex polygon.
+</td>
+
+</tr>
+
+<tr>
+<td><a title="SVG Convex Polygons- Expand/Contract"  target="_blank" href="svg-convex-polygon-exand.htm" style='cursor:pointer;color:blue'><u> SVG Convex Polygons- Expand/Contract</u></a></td>
+<td>Expand/Contract the size of a convex polygon by a preset offset value. Each side of the polygon is offset.
+</td>
+
+</tr>
+<tr>
+<td><a title="SVG Convex Polygons- Transformed Points"  target="_blank" href="svg-polygon-transform-point.htm" style='cursor:pointer;color:blue'><u> SVG Convex Polygons- Transformed Points</u></a></td>
+<td>Transform the polygon and recompute the polygon's new points, then remove transform.  Uses <b>matrixTransform</b>
+</td>
+</tr>
+
+<tr>
+<td><a title="SVG Convex Polygons - Area"  target="_blank" href="svg-convex-polygon-area.htm" style='cursor:pointer;color:blue'><u> SVG Convex Polygons - Area </u></a></td>
+<td>
+Compute the area of a convex polygon.
+</td>
+
+</tr>
+
+
+<tr>
+<td><a title="SVG Convex Polygons - Trim"  target="_blank" href="svg-convex-polygon-trim.htm" style='cursor:pointer;color:blue'><u> SVG Convex Polygons - Trim </u></a></td>
+<td>
+A convex clipping polygon trims one or more interior intersecting(subject) convex polygons. Uses <b>Sutherland-Hodgman clipping algorithm</b>.
+</td>
+
+</tr>
+
+<tr>
+<td><a title="SVG Convex Polygons - Side Lengths"  target="_blank" href="svg-polygon-side-length.htm" style='cursor:pointer;color:blue'><u> SVG Convex Polygons - Side Lengths </u></a></td>
+<td>
+Compute, and show the length, of each side. Place the length values at the center point of each side.
+</td>
+
+</tr>
+<tr>
+<td><a title="SVG Convex Polygons - Side Length Align"  target="_blank" href="svg-polygon-textpath.htm" style='cursor:pointer;color:blue'><u> SVG Convex Polygons - Side Length Align </u></a></td>
+<td>
+Compute, and show the length, of each side. Align the length values with side, and center-located <b>inside</b> the polygon. Uses the <b>path element</b> with <b>textPath</b>. The path element has no stroke or fill, used only to support textPath.
+</td>
+
+</tr>
+<tr>
+<td><a title="SVG Convex Polygons - Side Directional Arrows"  target="_blank" href="svg-polygon-arrow-textpath.htm" style='cursor:pointer;color:blue'><u> SVG Convex Polygons - Side Directional Arrows </u></a></td>
+<td>
+Show line end <b>arrow marker</b> for CCW polygon points. Compute, and show the length, of each side. Align the length values with side. Uses the <b>path element</b> with <b>textPath</b>. The path element has no stroke or fill, used only to support textPath.
+</td>
+
+</tr>
+
+<tr>
+<td><a title="SVG Convex Polygons -  Bearing Lines"  target="_blank" href="svg-polygon-bearing-line.htm" style='cursor:pointer;color:blue'><u> SVG Convex Polygons -  Bearing Lines </u></a></td>
+<td>This example computes bearings of the sides of the polygon. Both <b>Azimuth and Compass Quadrant</b> bearings are shown.
+Show line end <b>arrow marker</b> for CCW polygon points. Compute, and show the length and bearing of each side. Align the bearing values with side. Uses the <b>path element</b> with <b>textPath</b>. The path element has no stroke or fill, used only to support textPath.
+</td>
+
+</tr>
+
+<tr>
+<td><a title="Convert Regular SVG Polygon To Arcs"  target="_blank" href="convert-svg-polygon-arc.htm" style='cursor:pointer;color:blue'><u>Convert Regular SVG Polygon To Arcs</u></a></td>
+<td>
+Rather than creating straight lines for each side, draw them as curved lines.
+This example draws an arc, given 2 points and a radius, for each side of the polygon.
+The direction of the arcs can be either outward or inward.
+</td>
+</tr>
+
+ <tr>
+<td><a title="SVG Intersect/Collision Detection"  target="_blank" href="svg-intersect-collide.htm" style='cursor:pointer;color:blue'><u>SVG Intersect/Collision Detection</u></a></td>
+<td>
+Determine if various SVG elements intersect/collide (Path, Polygon, Polyline, Rect, Circle, Text, Line, and Ellipse). Shows points of intersection. This is also applied to transformed elements.</td>
+</tr>
+
+ <tr>
+<td><a title="SVG Drag/Drop Collision Detection"  target="_blank" href="svg-drag-collide.htm" style='cursor:pointer;color:blue'><u>Drag/Drop Collision Detection</u></a></td>
+<td>
+When dragging an SVG element, show when its edge collides with its neighbors.
+</td>
+</tr>
+
+
+
+
+
+
+</table>
+<p></p>
+<div id=emDiv style='width:100%;text-align:center' ></div><p></p>
+</body>
+<script>
+function writeEM()
+{
+   var em="Contact: "
+    em+="fhem"
+    em+="sher"
+    em+="@"
+    em+="gm"
+    em+="ail."
+    em+="com"
+   emDiv.innerHTML=em +" &nbsp;&nbsp;<span style=color:maroon>Last Update: 8/14/2018</span>"
+
+}
+</script>
+</html>

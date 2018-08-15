@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <title>Point Inside Convex Polygon</title>
+  <script type="text/javascript" src="highlight.pack.js"></script>
+  <script type="text/javascript" src="highlightCode.js"></script>
+  <link href='highlight.css' rel='stylesheet' />
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+</head>
+<body style='padding:0px;font-family:arial;background:#f0f8ff'>
+<center>
+<h4>Point Inside Convex Polygon</h4>
+<div style='width:90%;background-color:gainsboro;text-align:justify;padding:10px;border-radius:10px;'>
+Determine if a point is located inside of the polygon. Uses <b>Jordan Curve Theorem</b></div>
+
+
+
+<div id="svgDiv" style='width:400px;height:400px;background-color:lightgreen;'>
+<svg id="mySVG" width="400" height="400">
+<polygon id="myPolygon" fill="yellow" stroke="blue" stroke-width="3" points="380,80 200,10 40,80 100,320 300,350" />
+ <circle fill='red' cx=10 cy=10 r=8 stroke="none" />
+ <circle fill='lime' cx=200 cy=200 r=8 stroke="none" />
+ <circle fill='blue' cx=380 cy=80 r=8 stroke="none" />
+</svg>
+</div>
+  <br><button style=width:100px; onclick=redPointButton() >Red Point</button> <span id=redSpan style=color:blue></span>
+  <br><button style=width:100px;  onclick=greenPointButton() >Green Point</button> <span id=greenSpan style=color:blue></span>
+  <br><button style=width:100px;  onclick=bluePointButton() >Blue Point</button> <span id=blueSpan style=color:blue></span>
+  <p></p>
+
+  SVG Source:
+  <div id=svgSourceDiv style=overflow:auto;width:100%;height:1px;text-align:left; /></div>
+  Javascript:
+  <div id=jsCodeDiv style=overflow:auto;width:100%;text-align:left; /></div>
+
+</center>
+<script id=myScript>
+
+function redPointButton()
+{
+    redSpan.innerHTML=pointInPolygon(myPolygon,10,10)
+}
+function greenPointButton()
+{
+    greenSpan.innerHTML=pointInPolygon(myPolygon,200,200)
+}
+function bluePointButton()
+{
+    blueSpan.innerHTML=pointInPolygon(myPolygon,380,80)
+}
+
+
+//---Point-in-polygon: Jordan Curve Theorem---
+function pointInPolygon(myPolygon,px,py)
+{
+    var pointsList=myPolygon.points
+
+	var x
+	var y
+	var x1
+	var y1
+	var crossings=0
+	var verts=pointsList.numberOfItems
+
+//---Iterate through each line ---
+	for ( var i = 0; i < verts; i++ )
+	{
+		var vertx=pointsList.getItem(i).x
+		var verty=pointsList.getItem(i).y
+		if(i<verts-1)
+		{
+			var vertxNext=pointsList.getItem(i+1).x
+			var vertyNext=pointsList.getItem(i+1).y
+		}
+		else
+		{
+			var vertxNext=pointsList.getItem(0).x
+			var vertyNext=pointsList.getItem(0).y
+		}
+
+	/* This is done to ensure that we get the same result when
+	   the line goes from left to right and right to left */
+		if ( vertx < vertxNext){
+			x1 = vertx;
+			x2 = vertxNext;
+		} else {
+			x1 = vertxNext;
+			x2 = vertx;
+		}
+
+		/* First check if the ray is possible to cross the line */
+		if ( px > x1 && px <= x2 && ( py < verty || py <= vertyNext ) ) {
+	   	var eps = 0.000000001;
+
+		/* Calculate the equation of the line */
+		var dx = vertxNext - vertx;
+		var dy = vertyNext - verty;
+		var k;
+
+		if ( Math.abs(dx) < eps ){
+			k = Infinity;
+		} else {
+			k = dy/dx;
+		}
+
+			var m = verty - k * vertx;
+
+			/* Find if the ray crosses the line */
+			y2 = k * px + m;
+			if ( py <= y2 ){
+				crossings++;
+			}
+		}
+	}
+	//---odd number of crossings: point inside polygon--
+	var crossFlag=(crossings/2)+""
+	if(crossFlag.indexOf(".")!=-1)
+	return true;
+	else
+	return false;
+}
+document.addEventListener("onload",init(),false)
+
+function init()
+{
+    showSourceSVG()
+    showSourceJS()
+
+}
+
+</script>
+
+</body>
+
+</html>

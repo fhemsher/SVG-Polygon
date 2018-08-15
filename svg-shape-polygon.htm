@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <title>Create Polygon From Points</title>
+  <script type="text/javascript" src="../highlight.pack.js"></script>
+  <script type="text/javascript" src="../highlightCode.js"></script>
+  <link href='../highlight.css' rel='stylesheet' />
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+</head>
+<body style='padding:10px;font-family:arial;background:#f0f8ff'>
+<center>
+<h4>Create Polygon From Points</h4>
+<div style='width:90%;background-color:gainsboro;text-align:justify;padding:10px;border-radius:6px;'>
+Build a polygon to follow any group of non-contiguous points.</div>
+<table><tr>
+<td>
+<div style="padding:10px;width:500px;text-align:justify">
+
+<b>Scenerio:</b><br />
+Select 'Random Points' to create a group of points.<br>
+Random Points:<input type="text" id=randomPointValue style=width:400px /><br>
+Polygon Points:<input type="text" id=polygonPointValue style=width:400px /><br>
+</div>
+</td>
+<td>
+<div id="svgDiv" style='background-color:lightgreen;width:400px;height:400px;'>
+<svg id="mySVG" width="400" height="400" overflow="visible">
+<g id=circleG />
+<polygon id=myPolygon stroke='blue' fill='none' stroke-width='3' />
+</svg>
+</div>
+<center><button onClick=randomPoints()>Random Points</button></center>
+</td>
+</tr></table>
+  <br />SVG Source:
+  <div id=svgSourceDiv style=overflow:auto;width:100%;height:1px;text-align:left; /></div>
+  Javascript:
+  <div id=jsCodeDiv style=overflow:auto;width:100%;height:300px;text-align:left; /></div><p></p>
+</center>
+<script id=myScript>
+var NS="http://www.w3.org/2000/svg"
+
+var RandomPnts=[]
+//---button---
+function randomPoints()
+{
+     //---clear previous---
+    for(var k=circleG.childNodes.length-1;k>=0;k--)
+     circleG.removeChild(circleG.childNodes.item(k))
+    myPolygon.removeAttribute("points")
+
+	//---Generate 8 random points---
+	function times(n, fn)
+	{
+	    var a = [], i;
+	    for (i = 0; i < n; i++) {
+	        a.push(fn(i));
+	    }
+	    return a;
+	}
+	RandomPnts = times(8, function() { return [Math.floor(360 * Math.random()) + 20, Math.floor(360 * Math.random()) + 20] });
+    //---show points---
+	for(var k=0;k<8;k++)
+	{
+		var circle=document.createElementNS(NS,"circle")
+		circle.setAttribute("cx",RandomPnts[k][0])
+		circle.setAttribute("cy",RandomPnts[k][1])
+        circle.setAttribute("fill", "red")
+        circle.setAttribute("stroke", "none")
+        circle.setAttribute("r", "5")
+        circleG.appendChild(circle)
+	}
+
+
+    drawPolygon()
+	showSourceSVG()
+
+    randomPointValue.value=RandomPnts.toString()
+    polygonPointValue.value=myPolygon.getAttribute("points")
+
+}
+
+
+
+var Lines=[]  //---[x1,y1,x2,y2]---
+Lines[0]=[170, 148, 140, 200]
+Lines[1]=[140, 200, 170, 251]
+Lines[2]=[230, 251, 260, 200]
+Lines[3]=[170, 148, 200, 96]
+Lines[4]=[230, 251, 200, 303]
+Lines[5]=[200, 303, 170, 251]
+Lines[6]=[281, 118, 251, 66]
+Lines[7]=[251, 66, 200, 96]
+Lines[8]=[281, 118, 311, 170]
+Lines[9]=[311, 170, 260, 200]
+
+
+
+
+
+function Point(value) {
+  this.value = value;
+  this.next = null;
+}
+Point.prototype.SetNext = function(nextPoint) {
+  this.next = nextPoint;
+};
+
+function PointList() {
+  this.items = [];
+}
+PointList.prototype.addOrGet = function(value) {
+  var foundPoint = this.items.find(function(item) {
+    return item.value == value;
+  });
+  if (foundPoint) {
+    return foundPoint;
+  }
+  //create new point
+  var newPoint = new Point(value);
+  this.items.push(newPoint);
+  return newPoint;
+};
+PointList.prototype.GetPointsInOrder = function() {
+  var current = this.items[0],
+    next, nextPoints = [];
+  for (var counter = 0; counter < this.items.length; counter++) {
+    next = current.next;
+    if (next) {
+      nextPoints.push(next.value);
+      current = next;
+    }
+  }
+  return nextPoints.join(', ');
+}
+
+
+
+var NS = "http://www.w3.org/2000/svg"
+
+function drawPolygon() {
+  var placedLines = [];
+  var polygon = document.createElementNS(NS, "polygon");
+  var linePoints = [],
+    point1, point2, indexOfPoint1, indexOfPoint2;
+  var pointList = new PointList(),
+    point1, point2, point1str, point2str;
+  for (var k = 0; k < Lines.length; k++) {
+    point1str = Lines[k][0] + ' ' + Lines[k][1];
+    point2str = Lines[k][2] + ' ' + Lines[k][3];
+    point1 = pointList.addOrGet(point1str);
+    point2 = pointList.addOrGet(point2str);
+    if (!point1.next) {
+      point1.SetNext(point2);
+    } else if (!point2.next) {
+      point2.SetNext(point1);
+    }
+  }
+  myPolygon.setAttribute("points", pointList.GetPointsInOrder());
+
+
+  showSourceSVG()
+}
+//document.addEventListener("onload", placeLines(), false);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+
+
+
+
+
+//---onload---
+//---find a start point: min x/y point
+var Points=[]
+function getStartPoint()
+{
+
+ function min(a, fn)
+	{
+		if (!a.length)
+		{
+			return -1;
+		}
+
+		var i = 0;
+		for (var j = 1; j < a.length; j++)
+		{
+			if (fn(a[i], a[j]) < 0)
+			i = j;
+		}
+		return i;
+	}
+
+Points=[]
+for(var k=0;k<Lines.length;k++)
+{
+   Points.push([Lines[k][0],Lines[k][1]])
+   Points.push([Lines[k][2],Lines[k][3]])
+
+}
+ var i = min(Points, function(a, b) { return a[1] == b[1] ? b[0] - a[0] : b[1] - a[1] });
+
+
+    var start=document.createElementNS(NS,"circle")
+     start.setAttribute("r",8)
+     start.setAttribute("cx",Points[i][0])
+     start.setAttribute("cy",Points[i][1])
+     start.setAttribute("fill",'yellow')
+     start.setAttribute("stroke",'none')
+     mySVG.appendChild(start)
+     showSourceSVG()
+}
+
+
+//---button---
+function placeLine(n)
+{
+
+       var line=document.createElementNS(NS,"line")
+       line.setAttribute("x1",Lines[n][0])
+       line.setAttribute("y1",Lines[n][1])
+       line.setAttribute("x2",Lines[n][2])
+       line.setAttribute("y2",Lines[n][3])
+       lineG.appendChild(line)
+       showSourceSVG()
+}
+
+function clearLines()
+{
+   for(var k=lineG.childNodes.length-1;k>=0;k--)
+   lineG.removeChild(lineG.childNodes.item(k))
+
+    buttonLines0.disabled=false
+    buttonLines1.disabled=false
+    buttonLines2.disabled=false
+    buttonLines3.disabled=false
+    buttonLines4.disabled=false
+    buttonLines5.disabled=false
+    buttonLines6.disabled=false
+    buttonLines7.disabled=false
+    buttonLines8.disabled=false
+    buttonLines9.disabled=false
+
+    showSourceSVG()
+
+}
+
+//---button---
+function placeLinePref(n)
+{
+
+       var line=document.createElementNS(NS,"line")
+       line.setAttribute("x1",Lines[n][0])
+       line.setAttribute("y1",Lines[n][1])
+       line.setAttribute("x2",Lines[n][2])
+       line.setAttribute("y2",Lines[n][3])
+       lineGPref.appendChild(line)
+
+       showSourceSVG()
+}
+
+
+function clearLinesPref()
+{
+   for(var k=lineGPref.childNodes.length-1;k>=0;k--)
+   lineGPref.removeChild(lineGPref.childNodes.item(k))
+
+    buttonLines0Pref.disabled=false
+    buttonLines1Pref.disabled=false
+    buttonLines2Pref.disabled=false
+    buttonLines3Pref.disabled=false
+    buttonLines4Pref.disabled=false
+    buttonLines5Pref.disabled=false
+    buttonLines6Pref.disabled=false
+    buttonLines7Pref.disabled=false
+    buttonLines8Pref.disabled=false
+    buttonLines9Pref.disabled=false
+
+
+    showSourceSVG()
+}
+
+function placePoint(n,dup)
+{
+
+      var point=document.createElementNS(NS,"circle")
+       point.setAttribute("cx",Points[n][0])
+       point.setAttribute("cy",Points[n][1])
+       if(dup==true)
+       {
+      point.setAttribute("fill","none")
+      point.setAttribute("stroke","black")
+             point.setAttribute("r","6")
+
+       }
+       else
+       {
+      point.setAttribute("fill","black")
+      point.setAttribute("stroke","none")
+     point.setAttribute("r","3")
+
+      }
+       initPointG.appendChild(point)
+
+     showSourceSVG()
+}
+
+
+
+
+ //---is a point on a line??=== is so, remove===
+ function isOnLine(x, y, endx, endy, px, py) {
+    var f = function(somex) { return (endy - y) / (endx - x) * (somex - x) + y; };
+    return Math.abs(f(px) - py) < 1e-6 // tolerance, rounding errors
+        && px >= x && px <= endx;      // are they also on this segment?
+}
+
+
+
+     //alert(points[0].xy)
+function removeDuplicates(arr, prop) {
+     var new_arr = [];
+     var lookup  = {};
+
+     for (var i in arr) {
+         lookup[arr[i][prop]] = arr[i];
+     }
+
+     for (i in lookup) {
+         new_arr.push(lookup[i]);
+     }
+
+     return new_arr;
+ }
+//var uniqueArray = removeDuplicates(Points, "xy");
+//alert(uniqueArray.length)
+
+
+
+function showPoints()
+{
+   for(var k=0;k<Points.length;k++)
+   {
+        //Points[k][0]=Points[k][0]-80
+        //Points[k][1]=Points[k][1]-80
+        var xy=Points[k].xy
+     var dot=document.createElementNS(NS,"circle")
+     dot.setAttribute("r",5)
+     dot.setAttribute("cx",xy[0])
+     dot.setAttribute("cy",xy[1])
+     dot.setAttribute("fill",'red')
+     dot.setAttribute("stroke",'none')
+     pointsG.appendChild(dot)
+   }
+
+//myPolyline.setAttribute("points",Points.join())
+
+ //getStartPoint()
+  getCenter()
+ //movePoints()
+}
+
+function getCenter()
+{
+    var sumX=0
+    var sumY=0
+      for(var k=0;k<Points.length;k++)
+   {
+
+        var xy=Points[k].xy
+        sumX+=xy[0]
+        sumY+=xy[1]
+
+   }
+    RefX=sumX/Points.length
+    RefY=sumY/Points.length
+  var start=document.createElementNS(NS,"circle")
+     start.setAttribute("r",8)
+     start.setAttribute("cx",RefX)
+     start.setAttribute("cy",RefY)
+     start.setAttribute("fill",'yellow')
+     start.setAttribute("stroke",'none')
+     mySVG.appendChild(start)
+
+    movePoints()
+
+}
+
+
+var RefX
+var RefY
+
+var Cx
+var Cy
+function getBBoxRect()
+{
+   var bb=pointsG.getBBox()
+   bbRect.setAttribute("x",bb.x)
+   bbRect.setAttribute("y",bb.y)
+   bbRect.setAttribute("width",bb.width)
+   bbRect.setAttribute("height",bb.height)
+   Cx=bb.x
+   Cy=bb.y
+
+   movePoints()
+
+}
+    //alert(points[0].xy)
+
+var MovePoints=[]
+function movePoints()
+{
+    for(var k=0;k<Points.length;k++)
+   {
+        MovePoints.push([Points[k].xy[0],Points[k].xy[1]])
+       //console.log([Points[k].xy[0]-RefX,Points[k].xy[1]-RefY])
+    }
+  getAtanAngles()
+}
+
+function getAtanAngles()
+{
+
+      var angleArray=[]
+    for(var k=0;k<Points.length;k++)
+    {
+       var x=MovePoints[k][0]-RefX
+       var y=MovePoints[k][1]-RefY
+
+
+         var angle = Math.atan2(y, x);
+          angleArray.push(angle* (180/Math.PI)+180+"@"+k)
+
+          distance = Math.sqrt(x*x + y*y)
+        console.log(angle*(180/Math.PI)+180 +"@"+distance)
+
+    }
+ angleArray.sort()
+    var points=[]
+    for(var k=0;k<angleArray.length;k++)
+    {
+        var at=+angleArray[k].split("@")[1]
+         points.push(MovePoints[at])
+        console.log(at)
+
+
+    }
+
+    myPolygon.setAttribute("points",points.join(" "))
+   showSourceSVG()
+}
+*/
+</script>
+<script>
+document.addEventListener("onload",init(),false)
+function init()
+{
+     drawPolygon()
+   	//showSourceSVG()
+	showSourceJS()
+}
+</script>
+
+</body>
+
+</html>

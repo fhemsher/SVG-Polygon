@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <title>C0603 - Convex Polygons - Trim </title>
+  <script type="text/javascript" src="highlight.pack.js"></script>
+  <script type="text/javascript" src="highlightCode.js"></script>
+  <link href='highlight.css' rel='stylesheet' />
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+</head>
+<body style='padding:0px;font-family:arial;background:#f0f8ff'>
+<center>
+<h4>Convex Polygons - Trim </h4>
+
+<div style='width:90%;background-color:gainsboro;text-align:justify;padding:10px;border-radius:10px;'>
+A convex clipping polygon trims one or more interior intersecting(subject) convex polygons. Uses <b>Sutherland-Hodgman clipping algorithm</b>
+</div>
+<div id="svgDiv">
+<svg xmlns="http://www.w3.org/2000/svg" id="mySVG" width="142.083" height="213.193" >
+<polygon pgon="0"  fill="rgb(42, 82, 190)" stroke="black" stroke-width="1" points="127.083,46.1657 117.813,17.6338 93.5423,-0.00025177 63.5423,-0.00025177 39.2723,17.6338 30.0013,46.1657 39.2723,74.6967 63.5423,92.3307 93.5423,92.3307 117.813,74.6967" /><polygon pgon="1" fill="rgb(255, 255, 0)" stroke="black" stroke-width="1" points="54.2723,120.863 63.5423,92.3307 93.5423,92.3307 102.813,120.863 78.5423,138.496" /><polygon pgon="2" fill="rgb(255, 255, 0)" stroke="black" stroke-width="1" points="15.0015,92.3307 39.2723,74.6967 63.5423,92.3307 54.2713,120.863 24.2715,120.862" /><polygon pgon="3" fill="rgb(255, 255, 0)" stroke="black" stroke-width="1" points="102.813,120.863 93.5423,92.3307 117.813,74.6978 142.083,92.3307 132.813,120.862" /><polygon pgon="4" fill="rgb(237, 28, 36)" stroke="black" stroke-width="1" points="30.0013,138.496 54.2713,120.863 24.2715,120.862 0.000961304,138.495" /><polygon pgon="5" fill="rgb(34, 139, 34)" stroke="black" stroke-width="1" points="30.0013,138.496 54.2713,120.863 63.5413,149.394 39.2713,167.027" /><polygon pgon="6" fill="rgb(34, 139, 34)" stroke="black" stroke-width="1" points="9.27096,167.027 0.000961304,138.495 30.0013,138.496 39.2713,167.028" /><polygon pgon="7" fill="rgb(237, 28, 36)" stroke="black" stroke-width="1" points="78.5423,138.496 54.2723,120.863 63.5423,149.394 87.8133,167.028" /><polygon pgon="8" fill="rgb(34, 139, 34)" stroke="black" stroke-width="1" points="112.083,149.394 87.8133,167.028 78.5423,138.496 102.813,120.863" /><polygon pgon="9" fill="rgb(34, 139, 34)" stroke="black" stroke-width="1" points="132.813,120.863 102.813,120.863 112.083,149.394 142.083,149.394" /><polygon pgon="10" fill="rgb(237, 28, 36)" stroke="black" stroke-width="1" points="112.083,149.394 87.8133,167.028 117.813,167.028 142.083,149.394" /><polygon pgon="11" fill="rgb(255, 255, 0)" stroke="black" stroke-width="1" points="48.5413,195.56 39.2713,167.028 9.27096,167.027 -3.8147e-005,195.559 24.27,213.193" /><polygon pgon="12" fill="rgb(255, 255, 0)" stroke="black" stroke-width="1" points="87.8113,167.028 63.5413,149.394 39.2713,167.027 48.5413,195.559 78.5413,195.56" /><polygon pgon="13" fill="rgb(255, 255, 0)" stroke="black" stroke-width="1" points="78.5423,195.559 87.8133,167.028 117.813,167.028 127.083,195.559 102.813,213.193" />
+<polygon id="clippingPolygon" fill="none" stroke-width="2" stroke="red" points="30,40 30,160 126,160 126,40"/>
+</svg></div>
+<button onClick=trimPolygons()>trim</button>
+ <br />  SVG Source:
+  <div id=svgSourceDiv style=overflow:auto;width:100%;height:1px;text-align:left; /></div>
+  <br>Javascript:
+  <div id=jsCodeDiv style=overflow:auto;width:100%;text-align:left; /></div>
+
+</center>
+<script id=myScript>
+
+//---button---
+function trimPolygons()
+{
+	var polygons=document.getElementsByTagName("polygon")
+	var p=polygons.length
+	var clippingPoints=clippingPolygon.points
+	var n=clippingPoints.numberOfItems
+	//---coords = [[x1, y1], [x2, y2], …]
+	var clipCoords=[]
+	for(var k=0;k<n;k++)
+	{
+		var x=clippingPoints.getItem(k).x
+		var y=clippingPoints.getItem(k).y
+		clipCoords.push([x,y])
+	}
+	//---trim each polygon---
+	for(var k=0;k<p-1;k++) //--last polygon(clippingPolygon) ignored---
+	{
+		var subjectPoints=polygons[k].points
+		var n=subjectPoints.numberOfItems
+		var subjectCoords=[]
+		for(m=0;m<n;m++)
+		{
+			var x=subjectPoints.getItem(m).x
+			var y=subjectPoints.getItem(m).y
+			subjectCoords.push([x,y])
+		}
+		var trimmedPoints=trimmedCoords(clipCoords,subjectCoords)
+
+		polygons[k].setAttribute("points",trimmedPoints.join())
+	}
+	//---remove if 'empty' polygons(points="") - polygons fully outside of clipping area---
+	for(var k=p-1;k>=0;k--)
+	{
+		var points=polygons[k].getAttribute("points")
+		if(points=="")
+			mySVG.removeChild(polygons[k])
+	}
+
+	showSourceSVG()
+}
+
+//--- The Sutherland-Hodgman clipping algorithm (from D3's d3.geom.polygon.clip function.) ---
+//---coords = [[x1, y1], [x2, y2], …] ---
+function trimmedCoords(clipCoords,subjectCoords)
+{
+	var input,
+	i = -1,
+	n = clipCoords.length,
+	j,
+	m,
+	a = clipCoords[n - 1],
+	b,
+	c,
+	d;
+	while (++i < n)
+	{
+		input = subjectCoords.slice();
+		subjectCoords.length = 0;
+		b = clipCoords[i];
+		c = input[(m = input.length) - 1];
+		j = -1;
+		while (++j < m)
+		{
+			d = input[j];
+			if (polygonInside(d, a, b))
+			{
+				if (!polygonInside(c, a, b))
+					subjectCoords.push(polygonIntersect(c, d, a, b));
+				subjectCoords.push(d);
+			}
+			else if (polygonInside(c, a, b))
+				subjectCoords.push(polygonIntersect(c, d, a, b));
+
+			c = d;
+		}
+		a = b;
+	}
+	return subjectCoords;
+};
+
+function polygonInside(p, a, b)
+{
+  return (b[0] - a[0]) * (p[1] - a[1]) < (b[1] - a[1]) * (p[0] - a[0]);
+}
+
+//---Intersect two infinite lines cd and ab.---
+function polygonIntersect(c, d, a, b)
+{
+  var x1 = c[0], x2 = d[0], x3 = a[0], x4 = b[0],
+      y1 = c[1], y2 = d[1], y3 = a[1], y4 = b[1],
+      x13 = x1 - x3,
+      x21 = x2 - x1,
+      x43 = x4 - x3,
+      y13 = y1 - y3,
+      y21 = y2 - y1,
+      y43 = y4 - y3,
+      ua = (x43 * y13 - y43 * x13) / (y43 * x21 - x43 * y21);
+  return [x1 + ua * x21, y1 + ua * y21];
+}
+</script>
+<script>
+document.addEventListener("onload",init(),false)
+
+function init()
+{
+showSourceSVG()
+showSourceJS()
+
+}
+</script>
+</body>
+
+</html>

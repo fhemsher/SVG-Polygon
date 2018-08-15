@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <title>C0600d - Composite Intersecting Polygon</title>
+  <script type="text/javascript" src="highlight.pack.js"></script>
+  <script type="text/javascript" src="highlightCode.js"></script>
+  <link href='highlight.css' rel='stylesheet' />
+
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+</head>
+<body style='padding:0px;font-family:arial;background:#f0f8ff'>
+<center>
+<h4>Composite Intersecting Polygon</h4>
+<div style='width:90%;background-color:gainsboro;text-align:justify;padding:10px;border-radius:10px;'>
+Create a composite polygon from the intersection of two polygons. Uses <b>vector analysis</b> and Point-in-polygon: <b>Jordan Curve Theorem</b>.
+
+</div>
+<div id="svgDiv" style='width:400px;height:400px;background-color:lightgreen;'>
+<svg id="mySVG" width="400px" height="400px" >
+<polygon id="polygonA" fill="yellow" stroke="blue" stroke-width="3" points="280,80 100,10 40,80 100,220 200,250" />
+<polygon id="polygonB" fill="green" stroke="blue" stroke-width="3" opacity=".6" points="380,180 200,110 40,180 100,320 300,350" />
+<circle id="pointCircle" r="0" fill="lime" stroke-width="1" stroke="black" />
+<polygon id="compositePolygon" fill="silver" stroke="black" stroke-width="1" />
+</svg>
+</div>
+ <br /><button onclick=buildCompositePolygon() >Build Composite Polygon</button>
+ <br />  SVG Source:
+  <div id=svgSourceDiv style=overflow:auto;width:100%;height:1px;text-align:left; /></div>
+  Javascript:
+  <div id=jsCodeDiv style=overflow:auto;width:100%;text-align:left; /></div>
+
+</center>
+<script id=myScript>
+//---button---
+function buildCompositePolygon()
+{
+	var pointsA=polygonA.points
+	var pointsB=polygonB.points
+	//---get lines for intersecting points---
+	getABlines(pointsA,pointsB)
+	//---initialize CompositePoints---
+	getIntersectPoints()
+	//---add to CompositePoints---
+	computeCompositePoints(pointsA,pointsB)
+	//---arrange CompositePoints CCW---
+	CompositePoints=makeCCW(CompositePoints)
+	compositePolygon.setAttribute("points",CompositePoints.join())
+	showSourceSVG()   
+
+}
+var linesA=[];
+var linesB=[];
+function getABlines(pointsA,pointsB)
+{
+	var a=pointsA.numberOfItems
+	var b=pointsB.numberOfItems
+	for(var k=0;k<a;k++)
+	{
+		if(k<a-1)
+			linesA[linesA.length]=[pointsA.getItem(k).x,pointsA.getItem(k).y,pointsA.getItem(k+1).x,pointsA.getItem(k+1).y]
+		else
+			linesA[linesA.length]=[pointsA.getItem(k).x,pointsA.getItem(k).y,pointsA.getItem(0).x,pointsA.getItem(0).y]
+	}
+
+	for(var k=0;k<b;k++)
+	{
+		if(k<b-1)
+			linesB[linesB.length]=[pointsB.getItem(k).x,pointsB.getItem(k).y,pointsB.getItem(k+1).x,pointsB.getItem(k+1).y]
+		else
+			linesB[linesB.length]=[pointsB.getItem(k).x,pointsB.getItem(k).y,pointsB.getItem(0).x,pointsB.getItem(0).y]
+	}
+}
+var pntCnt=0
+function getIntersectPoints()
+{
+	for(var k=0;k<linesA.length;k++)
+	{
+		var a=linesA[k]
+		for(var m=0;m<linesB.length;m++)
+		{
+			var b=linesB[m]
+			lineSegIntersect(a[0],a[1],a[2],a[3],b[0],b[1],b[2],b[3])
+		}
+	}
+}
+
+//---compare two lines: A.B---
+function lineSegIntersect(aX1,aY1,aX2,aY2,bX1,bY1,bX2,bY2)
+{
+	//---compute vectors Va, Vb--------
+	var Va=( (bX2-bX1)*(aY1-bY1) - (bY2-bY1)*(aX1-bX1) )/ ( (bY2-bY1)*(aX2-aX1) - (bX2-bX1)*(aY2-aY1) )
+	var Vb=( (aX2-aX1)*(aY1-bY1) - (aY2-aY1)*(aX1-bX1) )/( (bY2-bY1)*(aX2-aX1) - (bX2-bX1)*(aY2-aY1) )
+
+	if(Va>0 && Va<1 && Vb>0 && Vb<1)
+	{
+		//---intersect true, show point---
+		var ma=(aY2-aY1)/(aX2-aX1)
+		var mb=(bY2-bY1)/(bX2-bX1)
+		if(aX2!=aX1&&bX2!=bX1) //---!vertical line---
+		{
+			var x=(aX1*ma-aY1-bX1*mb+bY1)/(ma-mb)
+			var y=ma*(x-aX1)+aY1
+		}
+		else if(aX2==aX1)
+		{
+			var x=aX1
+			var y=mb*(x-bX1)+bY1
+		}
+		else if(bX2==bX1)
+		{
+			var x=bX1
+			var y=ma*(x-aX1)+aY1
+		}
+
+		var iPnt=pointCircle.cloneNode(true)
+        iPnt.id="point"+pntCnt++
+		iPnt.setAttribute("r",8)
+		iPnt.setAttribute("cx",x)
+		iPnt.setAttribute("cy",y)
+		mySVG.appendChild(iPnt)
+
+       //--initial composite points---
+	   CompositePoints.push([x,y])
+    }
+}
+
+//============Convex CCW points ============
+var CompositePoints=[]
+function makeCCW(points)
+{
+    function min(a, fn)
+	{
+	    if (!a.length)
+		{
+	        return -1;
+	    }
+
+	    var i = 0;
+	    for (var j = 1; j < a.length; j++)
+		{
+	        if (fn(a[i], a[j]) < 0)
+			{
+	            i = j;
+	        }
+	    }
+	    return i;
+	}
+
+    function ccw(p1, p2, p3)
+	{
+        return (p2[0] - p1[0]) * (p3[1] - p1[1]) - (p2[1] - p1[1]) * (p3[0] - p1[0]);
+    }
+
+    var n = points.length;
+
+    // Find the point with the lowest y coordinate (breaking ties by looking at the x coordinate).
+    var i = min(points, function(a, b) { return a[1] == b[1] ? b[0] - a[0] : b[1] - a[1] });
+
+    // Take it out of the array.
+    var p = points[i];
+    points[i] = null;
+
+    // Put an extra entry in the array.
+    points.push(null);
+
+    // Sort the points by the angle that the line from p to the point makes with the x axis.
+    points.sort(function(a, b)
+	{
+        return !a ? -1 : (!b ? 1 : (a[0] - p[0]) / (a[1] - p[1]) - (b[0] - p[0]) / (b[1] - p[1]));
+    });
+
+    // Now the first two elements of points should be null.
+    // Place the lowest-y-coordinate point at p[1], and a sentinel value at p[0].
+    points[0] = points[n];
+    points[1] = p;
+
+    var m = 2;
+    for (i = 3; i <= n; i++)
+	{
+        // Look at the next point.
+        while (ccw(points[m - 1], points[m], points[i]) >= 0)
+		{
+            // If adding the next point would make the hull non-convex,
+            // remove the most recently added point from the convex hull
+            // we're building up.
+            m--;
+        }
+
+        // Add this point to the convex hull.
+        m++;
+        points[m] = points[i];
+    }
+
+    //---m=usable points for polygon---
+    return points.slice(0,m)
+}
+
+
+//---get other non-intersect composite points---
+function computeCompositePoints(pointsA,pointsB)
+{
+	//---a  pnts inside convex polygon b---
+	for(k=0;k<linesA.length;k++)
+	{
+		var linePnts=pointsA.getItem(k)
+		var x=linePnts.x
+		var y=linePnts.y
+		var test=insideTest(pointsB,x,y)
+		if(test==true)
+		{
+			var iPnt=pointCircle.cloneNode(true)
+	        iPnt.id="point"+pntCnt++
+			iPnt.setAttribute("r",4)
+			iPnt.setAttribute("fill","red")
+			iPnt.setAttribute("cx",x)
+			iPnt.setAttribute("cy",y)
+			mySVG.appendChild(iPnt)
+		   CompositePoints.push([x,y])
+		}
+	}
+	//---b  pnts inside convex polygon a---
+	for(k=0;k<linesB.length;k++)
+	{
+		var linePnts=pointsB.getItem(k)
+		var x=linePnts.x
+		var y=linePnts.y
+		var test=insideTest(pointsA,x,y)
+		if(test==true)
+		{
+			var iPnt=pointCircle.cloneNode(true)
+	        iPnt.id="point"+pntCnt++
+			iPnt.setAttribute("r",4)
+			iPnt.setAttribute("fill","red")
+			iPnt.setAttribute("cx",x)
+			iPnt.setAttribute("cy",y)
+			mySVG.appendChild(iPnt)
+		   	CompositePoints.push([x,y])
+		}
+	}
+
+}
+
+//---Point-in-polygon: Jordan Curve Theorem---
+function insideTest(pointsList,px,py)
+{
+	var x
+	var y
+	var x1
+	var y1
+	var crossings=0
+	var verts=pointsList.numberOfItems
+
+//---Iterate through each line ---
+	for ( var i = 0; i < verts; i++ )
+	{
+		var vertx=pointsList.getItem(i).x
+		var verty=pointsList.getItem(i).y
+		if(i<verts-1)
+		{
+			var vertxNext=pointsList.getItem(i+1).x
+			var vertyNext=pointsList.getItem(i+1).y
+		}
+		else
+		{
+			var vertxNext=pointsList.getItem(0).x
+			var vertyNext=pointsList.getItem(0).y
+		}
+
+	/* This is done to ensure that we get the same result when
+	   the line goes from left to right and right to left */
+		if ( vertx < vertxNext){
+			x1 = vertx;
+			x2 = vertxNext;
+		} else {
+			x1 = vertxNext;
+			x2 = vertx;
+		}
+
+		/* First check if the ray is possible to cross the line */
+		if ( px > x1 && px <= x2 && ( py < verty || py <= vertyNext ) ) {
+	   	var eps = 0.000000001;
+
+		/* Calculate the equation of the line */
+		var dx = vertxNext - vertx;
+		var dy = vertyNext - verty;
+		var k;
+
+		if ( Math.abs(dx) < eps ){
+			k = Infinity;
+		} else {
+			k = dy/dx;
+		}
+
+			var m = verty - k * vertx;
+
+			/* Find if the ray crosses the line */
+			y2 = k * px + m;
+			if ( py <= y2 ){
+				crossings++;
+			}
+		}
+	}
+	//---odd number of crossings: point inside hull---
+	var crossFlag=(crossings/2)+""
+	if(crossFlag.indexOf(".")!=-1)
+	return true;
+	else
+	return false;
+}
+</script>
+<script>
+document.addEventListener("onload",init(),false)
+
+function init()
+{
+showSourceSVG()
+showSourceJS()
+}
+
+</script>
+</body>
+
+</html>

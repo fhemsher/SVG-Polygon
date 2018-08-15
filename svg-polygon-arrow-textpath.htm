@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <title>C604c - Convex Polygons - Side Directional Arrows</title>
+  <script type="text/javascript" src="highlight.pack.js"></script>
+  <script type="text/javascript" src="highlightCode.js"></script>
+  <link href='highlight.css' rel='stylesheet' />
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+</head>
+<body style='padding:0px;font-family:arial;background:#f0f8ff'>
+<center>
+<h4>Convex Polygons - Side Directional Arrows</h4>
+<div style='width:90%;background-color:gainsboro;text-align:justify;padding:10px;border-radius:10px;'>
+Show line end <b>arrow marker</b> for CCW polygon points. Compute, and show the length, of each side. Align the length values with side. Uses the <b>path element</b> with <b>textPath</b>. The path element has no stroke or fill, used only to support textPath.
+</div>
+<div id="svgDiv" style='background-color:red;width:400px;height:400px;'>
+<svg xmlns:xlink="http://www.w3.org/1999/xlink"  xmlns="http://www.w3.org/2000/svg" id="mySVG" width="400" height="400">
+<defs id="arrowDefs">
+<marker colorId="RGB(0,0,0)" id="arrowEnd" viewBox="0 0 8000 8000" refX="280" refY="150"	markerUnits="strokeWidth" markerWidth="300" markerHeight="300" orient="auto"  fill="RGB(0,0,0)" stroke-linejoin="bevel" ><path stroke="RGB(0,0,0)" stroke-width="5" d="M2 59,293 148,1 243,121 151,Z" /></marker>
+</defs>
+<polygon id="myPolygon" fill="yellow" stroke="blue" stroke-width="1" points="380,80 200,10 40,80 100,320 300,350" />
+</svg>
+</div>
+<br /><button onClick=showSideLength()>Show Side Length</button>
+ <br />  SVG Source:
+  <div id=svgSourceDiv style=overflow:auto;width:100%;height:1px;text-align:left; /></div>
+  Javascript:
+  <div id=jsCodeDiv style=overflow:auto;width:100%;text-align:left; /></div>
+
+</center>
+<script id=myScript>
+var NS="http://www.w3.org/2000/svg"
+
+//---button---
+function showSideLength()
+{
+	var pointList=myPolygon.points
+	var n=pointList.numberOfItems
+	for(var k=0;k<n;k++)
+	{
+		var x1=pointList.getItem(k).x
+		var y1=pointList.getItem(k).y
+         //---show the start point of the arrow lines---
+		if(k==0)
+		{
+			var startCircle=document.createElementNS(NS,"circle")
+			startCircle.setAttribute("cx",x1)
+			startCircle.setAttribute("cy",y1)
+			startCircle.setAttribute("r",6)
+			startCircle.setAttribute("stroke-width",2)
+			startCircle.setAttribute("stroke","black")
+			startCircle.setAttribute("fill","lime")
+			mySVG.appendChild(startCircle)
+		}
+		if(k<n-1)
+		{
+			var x2=pointList.getItem(k+1).x
+			var y2=pointList.getItem(k+1).y
+		}
+		else
+		{
+			var x2=pointList.getItem(0).x
+			var y2=pointList.getItem(0).y
+		}
+
+		var ln=Math.sqrt( (x2-x1)*(x2-x1)+(y2-y1)*(y2-y1) )
+		var lnRnd=Math.round(ln*100)/100
+		var cx=(x1+x2)/2
+		var cy=(y1+y2)/2
+		//---add line with end arrow--
+		var line=document.createElementNS(NS,"line")
+		line.setAttribute("x1",x1)
+		line.setAttribute("y1",y1)
+		line.setAttribute("x2",x2)
+		line.setAttribute("y2",y2)
+		line.setAttribute("stroke-width",3) //--determines arrow size--
+		line.setAttribute("stroke","none")	//---line not shown--
+		line.setAttribute("marker-end","url(#arrowEnd)")
+		mySVG.appendChild(line)
+
+        createTextPath(x1,y1,x2,y2,lnRnd)
+
+	}
+
+	showSourceSVG()
+}
+
+var Xlink='http://www.w3.org/1999/xlink'
+var TextPathCnt=0
+function createTextPath(x1,y1,x2,y2,lnRnd)
+{
+	TextPathCnt++
+	//--aligns text so not upside down, and inside polygon---
+	if(x2>=x1)
+	{
+		var d="M"+x1+" "+y1+"L"+x2+" "+y2
+		var dy= "-.25em"
+		/*--outside---
+		var dy= ".75em"
+		*/
+	}
+	else
+	{
+		var d="M"+x2+" "+y2+"L"+x1+" "+y1
+		var dy= ".75em"
+		/*--outside---
+		var dy= "-.25em"
+		*/
+	}
+
+	var path=document.createElementNS(NS,"path")
+	path.setAttribute("id","textPathPath"+TextPathCnt)
+	path.setAttribute("d",d)
+	path.setAttribute("fill","none")
+	path.setAttribute("stroke","none")
+
+	mySVG.appendChild(path)
+
+	var myText=document.createElementNS(NS,"text")
+	var textPath=document.createElementNS(NS,"textPath")
+	textPath.setAttribute( "id","textPath"+TextPathCnt)
+	textPath.setAttributeNS(Xlink,"href","#textPathPath"+TextPathCnt)
+	textPath.setAttribute("startOffset","50%")
+	textPath.setAttribute("stroke","none")
+	textPath.setAttribute("font-family","arial")
+	textPath.setAttribute("fill","black")
+	textPath.setAttribute("text-anchor","middle")
+	textPath.setAttribute("font-size",12)
+	myText.setAttribute("dy",dy)
+
+	var textNode=document.createTextNode(lnRnd)
+	textPath.appendChild(textNode)
+
+	myText.appendChild(textPath)
+	mySVG.appendChild(myText)
+}
+
+</script>
+<script>
+document.addEventListener("onload",init(),false)
+
+function init()
+{
+showSourceSVG()
+showSourceJS()
+}
+
+</script>
+</body>
+
+</html>
