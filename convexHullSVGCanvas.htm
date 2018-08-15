@@ -2,11 +2,19 @@
 <!DOCTYPE html>
 
 <html>
-<title>Intersecting Convex Hulls: SVG versus Canvas Rendering</title>
+<head>
+    <title>Intersecting Convex Hulls: SVG versus Canvas Rendering</title>
+    <script type="text/javascript" src="highlight.pack.js"></script>
+    <script type="text/javascript" src="highlightCode.js"></script>
+    <link href='highlight.css' rel='stylesheet' />
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+</head>
+
+
 <body onLoad=initSVG() style='font-family:arial;font-size:18;background:#f0f8ff'>
 <center><h3>Intersecting Convex Hulls: SVG versus Canvas Rendering</h3></br>
 
-<svg id="mySVG" width="300" height="150"></svg><br />
+<div id=svgDiv><svg id="mySVG" width="300" height="150"></svg></div>
 <canvas id="myCanvas" width="300" height="150"></canvas>
 
 
@@ -21,9 +29,13 @@
   (a composite convex hull is then computed: gray)<br />
   <span style="color:blue">with composite convex hull<b> centroid</b></span><br />
 
+ <br />  SVG Source:
+  <div id=svgSourceDiv style=overflow:auto;width:100%;height:1px;text-align:left; /></div>
+  Javascript:<br>
+  <div id=jsCodeDiv style=overflow:auto;width:100%;text-align:left; /></div>
 
 </center>
-<script>
+<script id=myScript>
 
 var intersectPoint=null;
 var commonPoint=null;
@@ -63,6 +75,7 @@ function autoRefresh()
 	refreshTimer=setInterval("refresh()",3000)
 	restartButton.disabled=true
 	stopButton.disabled=false
+
 }
 
 function stop()
@@ -130,7 +143,8 @@ function refresh()
 		getABpoints(pointsA,pointsB)
 		placeIntersectPoints()
  		showCompositeArea(pointsA,pointsB)
-
+        
+       showSourceSVG()
 }
 
 
@@ -609,6 +623,14 @@ function canvasBG()
 	context.font         = '20px arial';
 	context.textBaseline = 'top';
 	context.fillText  ('Canvas', 0 , 0);
+
+}
+document.addEventListener("onload",init(),false)
+
+function init()
+{
+
+showSourceJS()
 
 }
 
