@@ -1,0 +1,617 @@
+
+<!DOCTYPE html>
+
+<html>
+<title>Intersecting Convex Hulls: SVG versus Canvas Rendering</title>
+<body onLoad=initSVG() style='font-family:arial;font-size:18;background:#f0f8ff'>
+<center><h3>Intersecting Convex Hulls: SVG versus Canvas Rendering</h3></br>
+
+<svg id="mySVG" width="300" height="150"></svg><br />
+<canvas id="myCanvas" width="300" height="150"></canvas>
+
+
+<p></p>
+
+<button id=stopButton   onClick=stop()>stop</button>
+
+<button id=restartButton onclick=autoRefresh() disabled>restart</button>
+
+<br />
+ 2 random-generated convex hulls : yellow/green<br />
+  (a composite convex hull is then computed: gray)<br />
+  <span style="color:blue">with composite convex hull<b> centroid</b></span><br />
+
+
+</center>
+<script>
+
+var intersectPoint=null;
+var commonPoint=null;
+var pgonFill="yellow"
+	//---namespace required to create inline svg elements----
+	var NS="http://www.w3.org/2000/svg"
+function initSVG()
+{
+    canvasBG()
+	intersectPoint=document.createElementNS(NS,"circle")
+	intersectPoint.setAttribute("fill","red")
+	intersectPoint.setAttribute("r",5)
+	commonPoint=document.createElementNS(NS,"circle")
+	commonPoint.setAttribute("fill","blue")
+	commonPoint.setAttribute("r",4)
+	refresh()
+	setTimeout('autoRefresh()', 3000)
+
+    var svgText=document.createElementNS(NS,"text");
+    svgText.setAttribute("text-anchor","middle")
+    svgText.setAttribute("fill","black")
+    svgText.setAttribute("font-family","arial")
+    svgText.setAttribute("font-size","20")
+    svgText.setAttribute("x","20")
+    svgText.setAttribute("y","20")
+	var node=document.createTextNode("SVG")
+	svgText.appendChild(node)
+	mySVG.appendChild(svgText)
+
+}
+
+
+var refreshTimer=null
+function autoRefresh()
+{
+	refresh()
+	refreshTimer=setInterval("refresh()",3000)
+	restartButton.disabled=true
+	stopButton.disabled=false
+}
+
+function stop()
+{
+	stopButton.disabled=true
+	restartButton.disabled=false
+	clearInterval(refreshTimer)
+
+}
+
+function refresh()
+{
+		if(mySVG.childNodes.length>0)
+		{
+			for(var k=mySVG.childNodes.length-1;k>=0;k--)
+			{
+				mySVG.removeChild(mySVG.childNodes.item(k))
+			}
+		}
+
+    var svgText=document.createElementNS(NS,"text");
+    svgText.setAttribute("text-anchor","middle")
+    svgText.setAttribute("fill","black")
+    svgText.setAttribute("font-family","arial")
+    svgText.setAttribute("font-size","20")
+    svgText.setAttribute("x","20")
+    svgText.setAttribute("y","20")
+	var node=document.createTextNode("SVG")
+	svgText.appendChild(node)
+	mySVG.appendChild(svgText)
+
+    	//---fully clear the canvas---
+	context.clearRect(0,0,canvas.width, canvas.height);
+    context.fillStyle    = 'black';
+	context.font         = '20px arial';
+	context.textBaseline = 'top';
+	context.fillText  ('Canvas', 0 , 0);
+
+		linesA=[];
+		linesB=[];
+		compositeHullPoints=[]
+		//---convex hull A---
+		// Generate some random points.
+		var pointsA = times(20, function() { return [Math.floor(260 * Math.random()) + 20, Math.floor(110 * Math.random()) + 20] });
+
+
+		// Compute the convex hull in place, and inflate it by 10 units.
+		computeConvexHull(pointsA);
+
+
+		// Draw the convex hull.
+		pgonFill="yellow"
+		drawPolygon(pointsA,"ConvexHullA");
+	//---convex hull B---
+		var pointsB = times(20, function() { return [Math.floor(260 * Math.random()) + 20, Math.floor(110 * Math.random()) + 20] });
+		// Draw them.
+		// Compute the convex hull in place, and inflate it by 10 units.
+		computeConvexHull(pointsB);
+
+		// Draw the convex hull.
+		pgonFill="lime"
+		drawPolygon(pointsB,"ConvexHullB");
+
+		//---line points for both convex hulls
+		getABpoints(pointsA,pointsB)
+		placeIntersectPoints()
+ 		showCompositeArea(pointsA,pointsB)
+
+}
+
+
+function times(n, fn) {
+    var a = [], i;
+    for (i = 0; i < n; i++) {
+        a.push(fn(i));
+    }
+    return a;
+}
+
+function forEach(a, fn) {
+    for (var i = 0; i < a.length; i++) {
+        fn(a[i], i);
+    }
+}
+
+function forEachPair(o, fn) {
+    for (var p in o) {
+        fn(p, o[p]);
+    }
+}
+
+function min(a, fn) {
+    if (!a.length) {
+        return -1;
+    }
+
+    var i = 0;
+    for (var j = 1; j < a.length; j++) {
+        if (fn(a[i], a[j]) < 0) {
+            i = j;
+        }
+    }
+    return i;
+}
+
+function newElt(ln, attrs) {
+    var e = document.createElementNS(NS,ln);
+    forEachPair(attrs, function(name, value) { e.setAttribute(name, value) });
+    return e;
+}
+
+function drawPoint(point, fill) {
+    mySVG.appendChild(newElt('circle', { cx: point[0], cy: point[1], r: '3', fill: fill || '#000' }));
+
+}
+
+function drawPolygon(points,id) {
+    mySVG.appendChild(newElt('polygon', { points: points.join(' '), fill: pgonFill, stroke: '#000', opacity: '0.8',id: id }));
+
+    context.beginPath()
+    context.moveTo(0, 0);
+    for(var k=0;k<points.length;k++)
+	{
+		if(k==0)
+        context.moveTo(points[k][0],points[k][1]);
+		else
+     	context.lineTo(points[k][0],points[k][1]);
+	}
+	//---back to begin point---
+    context.lineTo(points[0][0],points[0][1]);
+
+    context.lineWidth="1";
+	context.fillStyle=pgonFill
+    context.strokeStyle = "black";
+	context.fill()
+	context.stroke()
+
+}
+
+// Computes the convex hull using the "Graham scan" method
+// http://en.wikipedia.org/wiki/Graham_scan
+function computeConvexHull(points)
+{
+    function ccw(p1, p2, p3)
+	{
+        return (p2[0] - p1[0]) * (p3[1] - p1[1]) - (p2[1] - p1[1]) * (p3[0] - p1[0]);
+    }
+
+    var n = points.length;
+
+    // Find the point with the lowest y coordinate (breaking ties by looking at the x coordinate).
+    var i = min(points, function(a, b) { return a[1] == b[1] ? b[0] - a[0] : b[1] - a[1] });
+
+    // Take it out of the array.
+    var p = points[i];
+    points[i] = null;
+
+    // Put an extra entry in the array.
+    points.push(null);
+
+    // Sort the points by the angle that the line from p to the point makes with the x axis.
+    points.sort(function(a, b)
+	{
+        return !a ? -1 : (!b ? 1 : (a[0] - p[0]) / (a[1] - p[1]) - (b[0] - p[0]) / (b[1] - p[1]));
+    });
+
+    // Now the first two elements of points should be null.
+    // Place the lowest-y-coordinate point at p[1], and a sentinel value at p[0].
+    points[0] = points[n];
+    points[1] = p;
+
+    var m = 2;
+    for (i = 3; i <= n; i++)
+	{
+        // Look at the next point.
+        while (ccw(points[m - 1], points[m], points[i]) >= 0)
+		{
+            // If adding the next point would make the hull non-convex,
+            // remove the most recently added point from the convex hull
+            // we're building up.
+            m--;
+        }
+
+        // Add this point to the convex hull.
+        m++;
+        points[m] = points[i];
+    }
+
+    // Finally, m is the number of points on the convex hull.
+    points.length = m;
+}
+
+var linesA=[];
+var linesB=[];
+function getABpoints(pointsA,pointsB)
+{
+	for(var k=0;k<pointsA.length;k++)
+	{
+		if(k<pointsA.length-1)
+		linesA[linesA.length]=[pointsA[k][0],pointsA[k][1],pointsA[k+1][0],pointsA[k+1][1]]
+		else
+		linesA[linesA.length]=[pointsA[k][0],pointsA[k][1],pointsA[0][0],pointsA[0][1]]
+	}
+
+	for(var k=0;k<pointsB.length;k++)
+	{
+		if(k<pointsB.length-1)
+		linesB[linesB.length]=[pointsB[k][0],pointsB[k][1],pointsB[k+1][0],pointsB[k+1][1]]
+		else
+		linesB[linesB.length]=[pointsB[k][0],pointsB[k][1],pointsB[0][0],pointsB[0][1]]
+	}
+}
+
+function placeIntersectPoints()
+{
+	for(var k=0;k<linesA.length;k++)
+	{
+		var a=linesA[k]
+		for(var m=0;m<linesB.length;m++)
+		{
+			var b=linesB[m]
+			lineSegIntersect(a[0],a[1],a[2],a[3],b[0],b[1],b[2],b[3])
+		}
+	}
+}
+
+//----------intersect of 2 line segs; line a & line b-----------
+function lineSegIntersect(aX1,aY1,aX2,aY2,bX1,bY1,bX2,bY2)
+{
+	//---compute vectors Va, Vb---
+	var Va=( (bX2-bX1)*(aY1-bY1) - (bY2-bY1)*(aX1-bX1) )/ ( (bY2-bY1)*(aX2-aX1) - (bX2-bX1)*(aY2-aY1) )
+	var Vb=( (aX2-aX1)*(aY1-bY1) - (aY2-aY1)*(aX1-bX1) )/( (bY2-bY1)*(aX2-aX1) - (bX2-bX1)*(aY2-aY1) )
+
+	if(Va>0 && Va<1 && Vb>0 && Vb<1)
+	{
+	//---intersect true, show point---
+		var ma=(aY2-aY1)/(aX2-aX1)
+		var mb=(bY2-bY1)/(bX2-bX1)
+		if(aX2!=aX1&&bX2!=bX1) //---!vertical line---
+		{
+			var x=(aX1*ma-aY1-bX1*mb+bY1)/(ma-mb)
+			var y=ma*(x-aX1)+aY1
+		}
+		else if(aX2==aX1)
+		{
+			var x=aX1
+			var y=mb*(x-bX1)+bY1
+		}
+		else if(bX2==bX1)
+		{
+			var x=bX1
+			var y=ma*(x-aX1)+aY1
+		}
+
+		var iPnt=intersectPoint.cloneNode(true)
+		iPnt.setAttribute("cx",x)
+		iPnt.setAttribute("cy",y)
+		mySVG.appendChild(iPnt)
+		compositeHullPoints[compositeHullPoints.length]=[rnd3(x),rnd3(y)]
+        context.beginPath();
+		context.arc(rnd3(x),rnd3(y),5,0,2*Math.PI,false);
+		context.fillStyle="Red";
+		context.fill();
+	}
+}
+
+//============SHOW COMPOSITE AREA : convex hull============
+var compositeHullPoints=[]
+function showCompositeArea(pointsA,pointsB)
+{
+	//---a  pnts inside convex hull b---
+	commonPoint.setAttribute("fill","yellow")
+	for(k=0;k<linesA.length;k++)
+	{
+		var linePnts=pointsA[k]
+		var px=linePnts[0]
+		var py=linePnts[1]
+		var test=insideTest(pointsB,px,py)
+		if(test==true)
+		{
+			var cPnt=commonPoint.cloneNode(true)
+			cPnt.setAttribute("cx",px)
+			cPnt.setAttribute("cy",py)
+			mySVG.appendChild(cPnt)
+			compositeHullPoints[compositeHullPoints.length]=[px,py]
+			context.beginPath();
+			context.arc(px,py,4,0,2*Math.PI,false);
+			context.fillStyle="yellow";
+			context.fill();
+
+		}
+	}
+	//---b  pnts inside convex hull a---
+	 commonPoint.setAttribute("fill","lime")
+	for(k=0;k<linesB.length;k++)
+	{
+		var linePnts=pointsB[k]
+		var px=linePnts[0]
+		var py=linePnts[1]
+		var test=insideTest(pointsA,px,py)
+		if(test==true)
+		{
+			var cPnt=commonPoint.cloneNode(true)
+			cPnt.setAttribute("cx",px)
+			cPnt.setAttribute("cy",py)
+			mySVG.appendChild(cPnt)
+		   compositeHullPoints[compositeHullPoints.length]=[px,py]
+
+        context.beginPath();
+		context.arc(px,py,4,0,2*Math.PI,false);
+		context.fillStyle="lime";
+		context.fill();
+
+
+		}
+	}
+	showCompositeConvexHull()
+	showCompositeCentroid()
+}
+
+
+//---Point-in-polygon: Jordan Curve Theorem---
+function insideTest(hullPoints,px,py)
+{
+	var x
+	var y
+	var x1
+	var y1
+	var crossings=0
+	var verts=hullPoints.length
+
+//---Iterate through each line ---
+	for ( var i = 0; i < verts; i++ )
+	{
+		var vertx=hullPoints[i][0]
+		var verty=hullPoints[i][1]
+		if(i<verts-1)
+		{
+			var vertxNext=hullPoints[i+1][0]
+			var vertyNext=hullPoints[i+1][1]
+		}
+		else
+		{
+			var vertxNext=hullPoints[0][0]
+			var vertyNext=hullPoints[0][1]
+		}
+
+	/* This is done to ensure that we get the same result when
+	   the line goes from left to right and right to left */
+		if ( vertx < vertxNext){
+			x1 = vertx;
+			x2 = vertxNext;
+		} else {
+			x1 = vertxNext;
+			x2 = vertx;
+		}
+
+		/* First check if the ray is possible to cross the line */
+		if ( px > x1 && px <= x2 && ( py < verty || py <= vertyNext ) ) {
+	   	var eps = 0.000000001;
+
+		/* Calculate the equation of the line */
+		var dx = vertxNext - vertx;
+		var dy = vertyNext - verty;
+		var k;
+
+		if ( Math.abs(dx) < eps ){
+			k = Infinity;
+		} else {
+			k = dy/dx;
+		}
+
+			var m = verty - k * vertx;
+
+			/* Find if the ray crosses the line */
+			y2 = k * px + m;
+			if ( py <= y2 ){
+				crossings++;
+			}
+		}
+	}
+	//---odd number of crossings: point inside hull---
+	var crossFlag=(crossings/2)+""
+	if(crossFlag.indexOf(".")!=-1)
+	return true;
+	else
+	return false;
+}
+
+function showCompositeConvexHull()
+{
+	computeConvexHull(compositeHullPoints)
+	pgonFill="gainsboro"
+	 drawPolygon(compositeHullPoints,"ConvexHullComposite");
+}
+
+var CentroidX
+var CentroidY
+function showCompositeCentroid()
+{
+		var m=compositeHullPoints.length
+        var total_area = 0;
+        var centroid = [0, 0];
+        var a = compositeHullPoints[0];
+        for (i = 0; i < m - 2; i++) {
+            var b = compositeHullPoints[i + 1], c = compositeHullPoints[i + 2];
+            var area = 0.5 * Math.abs((a[0] - c[0]) * (b[1] - a[1]) - (a[0] - b[0]) * (c[1] - a[1]));
+            total_area += area;
+            centroid[0] += area * (a[0] + b[0] + c[0]);
+            centroid[1] += area * (a[1] + b[1] + c[1]);
+        }
+        centroid[0] /= total_area * 3;
+        centroid[1] /= total_area * 3;
+
+		//----radial lines----------
+		var radLine=document.createElementNS(NS,"line")
+		radLine.setAttribute("x1",centroid[0])
+		radLine.setAttribute("y1",centroid[1])
+		radLine.setAttribute("stroke-width",.5)
+		radLine.setAttribute("stroke","white")
+
+
+		for(var k=0;k<compositeHullPoints.length;k++)
+		{
+			var clone=radLine.cloneNode(true)
+			clone.setAttribute("x2",compositeHullPoints[k][0])
+			clone.setAttribute("y2",compositeHullPoints[k][1])
+			mySVG.appendChild(clone)
+
+			context.moveTo(centroid[0],centroid[1]);
+			context.lineTo(compositeHullPoints[k][0],compositeHullPoints[k][1]);
+			context.lineWidth=".5";
+			context.strokeStyle = "white";
+			context.stroke();
+		}
+
+		var centroidCircle=document.createElementNS(NS,"circle")
+		centroidCircle.setAttribute("cx",centroid[0])
+		centroidCircle.setAttribute("cy",centroid[1])
+		centroidCircle.setAttribute("r",6)
+		centroidCircle.setAttribute("fill","blue")
+		mySVG.appendChild(centroidCircle)
+
+        context.beginPath();
+		context.arc(centroid[0],centroid[1],6,0,2*Math.PI,false);
+		context.fillStyle="Blue";
+		context.fill();
+
+
+	CentroidX=centroid[0]
+	CentroidY=centroid[1]
+
+}
+var RotateAngle=0
+var RotatedConvexHull
+var TotalRotatedAngle
+//----rotate points about centroid----
+function rotate()
+{
+	if(RotateAngle==0)
+	{
+		var ConvexHullA=mySVG.getElementById("ConvexHullA")
+		var ConvexHullB=mySVG.getElementById("ConvexHullB")
+		var ConvexHullComposite=mySVG.getElementById("ConvexHullComposite")
+
+	   RotatedConvexHull=ConvexHullComposite.cloneNode(true)
+		mySVG.appendChild(RotatedConvexHull)
+
+		ConvexHullA.setAttribute("opacity",.25)
+		ConvexHullB.setAttribute("opacity",.25)
+		ConvexHullComposite.setAttribute("opacity",.25)
+		TotalRotatedAngle=0
+	}
+
+	RotateAngle=60
+	TotalRotatedAngle+=60
+		var locPnt=""
+		var rotatePoints=RotatedConvexHull.getAttribute("points")
+		var pcSplit=rotatePoints.split(" ")
+		var initPolarAngle=null
+		for(var k=0;k<pcSplit.length;k++)
+		{
+				var value=pcSplit[k].split(",")
+				var x=parseFloat(value[0])
+				var y=parseFloat(value[1])
+
+				var xX=x-CentroidX;
+				var yY=CentroidY-y;
+				var R=Math.sqrt(yY*yY+xX*xX);
+				var sine=yY/R;
+				var degrees=Math.abs(Math.asin(sine)*180/Math.PI);
+				//----quadrant----
+				if(xX>=0&&yY>=0)initPolarAngle=270+(90-degrees);
+				if(xX>=0&&yY<=0)initPolarAngle=degrees;
+				if(xX<=0&&yY<=0)initPolarAngle=90+(90-degrees);
+				if(xX<=0&&yY>=0)initPolarAngle=180+degrees;
+
+				var myDegrees=initPolarAngle+RotateAngle
+
+				var myRads=(myDegrees) * Math.PI / 180
+				 var x1=CentroidX+R*Math.cos(myRads)
+				 var y1=CentroidY+R*Math.sin(myRads)
+
+			   if(k<pcSplit.length-1)
+				locPnt+=x1+","+y1+" "
+			   else
+				locPnt+=x1+","+y1
+
+		}
+			totalRotatedAngleValue.value=TotalRotatedAngle
+			RotatedConvexHull.setAttribute("points",locPnt)
+
+}
+function rnd3(num)
+{
+	return Math.round(num*1000)/1000
+}
+
+function showSource(svgElem)
+{
+	var serializer = new XMLSerializer();
+	return serializer.serializeToString(svgElem);
+}
+
+//==================Canvas===============
+var canvas
+var context
+function canvasBG()
+{
+	canvas=document.getElementById("myCanvas");
+	context=canvas.getContext("2d");
+    context.beginPath()
+    context.moveTo(0, 0);
+ 	context.lineTo(300, 0);
+ 	context.lineTo(300, 150);
+ 	context.lineTo(0, 150);
+ 	context.lineTo(0, 0);
+    context.lineWidth="1";
+	context.fillStyle   = 'yellow';
+    context.strokeStyle = "black";
+	context.fill()
+	context.stroke()
+	context.fillStyle    = 'black';
+	context.font         = '20px arial';
+	context.textBaseline = 'top';
+	context.fillText  ('Canvas', 0 , 0);
+
+}
+
+</script>
+</body>
+</html>
