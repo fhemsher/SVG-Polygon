@@ -65,7 +65,18 @@ The example uses the <b>XMLHTTP</b> control to access the <b>native symbol libra
 </table>
 </div>
 <br />Build App's Registered Library - Select symbol above. Provide Size and Color(s)<br />
-Size:<input type=text id=registerSizeValue value=30 size=1 />
+Size: <select name="" id="registerSizeValue" onChange=>
+<option>10</option>
+<option>20</option>
+<option selected>30</option>
+<option>50</option>
+<option>60</option>
+<option>70</option>
+<option>100</option>
+
+
+</select>
+
 &nbsp;&nbsp;Color 1:<select onChange=symbolRegisterColor1Selected() disabled  title="symbol color #1"  id=symbolRegisterColor1Select>
 <option title='Black' value="black"  style='color:white;background-color:black'>01</option>
 <option title='White'  value="white"  style='background-color:white'>02</option>
@@ -213,7 +224,7 @@ function registerSymbol()
 	}
 	clone.id=id //--color numbers appended---
 	//---size this symbol--
-	var registerSize=parseFloat(registerSizeValue.value)
+	var registerSize=+registerSizeValue.options[registerSizeValue.selectedIndex].value
 	//---note: the selected symbols have been sized=30 for convenient user selection---
 	var resize=registerSize/30
 	if(resize!=1)

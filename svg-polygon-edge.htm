@@ -34,7 +34,16 @@ Selecting 'Screen Points', removes the transforms, and builds the polygon with a
 
 </div>
  <br />
-Edge Length: <input id=edgeLengthValue type="text" style=width:40px value=150 />px.
+Edge Length: <select name="" id="edgeSelect" onchange=buildPolygon()>
+<option>20</option>
+<option>40</option>
+<option>60</option>
+<option>80</option>
+<option>120</option>
+<option selected>150</option>
+
+
+</select>px.
 
  Points:<select onChange=buildPolygon() id=polygonPointsSelect>
 <option>3</option>
@@ -114,7 +123,7 @@ newPoint.y=some y value
 //---init and onChange----
 function buildPolygon()
 {
-	var edgeLen=parseInt(edgeLengthValue.value,10)
+	var edgeLen=+edgeSelect.options[edgeSelect.selectedIndex].text
 	var vCnt=parseInt(polygonPointsSelect.options[polygonPointsSelect.selectedIndex].text,10)
 	//---regPolyEdgeLenth(vCnt,edge,centerX,centerY)---
 	regPolyEdgeLenth(vCnt,edgeLen,200,200)
